@@ -27,10 +27,10 @@ all: $(Eaa_Name)
 opa:
 	@cd $(Opa_Lib_Path) && go build -o $(Opa_Name) -buildmode=c-shared $(Opa_SRC_Files)
 
-rats-tls:
-	cd $(PROJDIR)/rats-tls && cmake -DBUILD_SAMPLES=on -H. -Bbuild && make -C build install
+rats-TLS:
+	cd $(CUR_DIR)/rats-tls && cmake -DBUILD_SAMPLES=on -H. -Bbuild && make -C build install
 
-$(Eaa_Name): opa rats-tls
+$(Eaa_Name): opa rats-TLS
 	RUSTFLAGS="-C link-args=-Wl,-rpath=/usr/local/lib/rats-tls:/usr/local/lib:$(Opa_Lib_Path),--enable-new-dtags" cargo build $(App_Rust_Flags)
 	@echo "Cargo  =>  $@"
 
@@ -56,5 +56,5 @@ package:
 clean:
 	@rm -rf $(Opa_Lib_Path)/libopa.*
 	cargo clean && rm -f Cargo.lock
-	cd $(PROJDIR)/rats-tls && make -C build clean
+	cd $(CUR_DIR)/rats-tls && make -C build clean
 	@rm -f dist/rpm/verdictd.spec dist/deb/debian/changelog

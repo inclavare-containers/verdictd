@@ -1,0 +1,3 @@
+[submodule "rats-tls"]
+	path = rats-tls
+	url = https://github.com/inclavare-containers/rats-tls
