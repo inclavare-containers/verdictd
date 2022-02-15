@@ -13,14 +13,14 @@ override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
 
 override_dh_auto_build:
-	make -C $(NAME)
+	make
 
 override_dh_auto_install:
 	install -d -p $(BUILD_ROOT)$(BUILD_DIR)
-	install -p -m 755 $(CURDIR)/$(NAME)/target/release/$(NAME) $(BUILD_ROOT)$(BUILD_DIR)
-	install -p -m 755 $(CURDIR)/$(NAME)/target/release/$(VERDICT) $(BUILD_ROOT)$(BUILD_DIR)
+	install -p -m 755 $(CURDIR)/target/release/$(NAME) $(BUILD_ROOT)$(BUILD_DIR)
+	install -p -m 755 $(CURDIR)/target/release/$(VERDICT) $(BUILD_ROOT)$(BUILD_DIR)
 	install -d -p $(BUILD_ROOT)$(LIB_DIR)
-	install -p -m 755 $(CURDIR)/$(NAME)/src/policy_engine/opa/$(OPA) $(BUILD_ROOT)$(LIB_DIR)
+	install -p -m 755 $(CURDIR)/src/policy_engine/opa/$(OPA) $(BUILD_ROOT)$(LIB_DIR)
 
 override_dh_usrlocal:
 

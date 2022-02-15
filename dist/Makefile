@@ -6,7 +6,7 @@ ifeq ($(VERDICTD_MAINTAINER),)
 $(error "Please run make package in the root directory")
 endif
 
-PROJECT_DIR := $(shell cd ../..; pwd)
+PROJECT_DIR := $(shell cd ../; pwd)
 RPMBUILD_DIR := $(shell mktemp -u /tmp/rpmbuild.XXXX)
 RELEASE_TARBALL_URL := https://github.com/alibaba/inclavare-containers/archive/v$(VERDICTD_VERSION).tar.gz
 RELEASE_TARBALL_FILE := $(RPMBUILD_DIR)/SOURCES/v$(VERDICTD_VERSION).tar.gz

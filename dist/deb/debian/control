@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Zhou Liang <liang.a.zhou@linux.alibaba.com>
 Build-Depends: debhelper (>=9), cmake, git, make, autoconf, libtool, gcc, g++, libsgx-dcap-quote-verify-dev, libsgx-dcap-ql-dev, libsgx-uae-service
 Standards-Version: 3.9.8
-Homepage: https://github.com/alibaba/inclavare-containers
+Homepage: https://github.com/alibaba/inclavare-containers/verdictd
 
 Package: verdictd
 Architecture: amd64
