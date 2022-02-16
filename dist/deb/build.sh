@@ -1,10 +1,10 @@
 #!/bin/bash
 
-PROJECT_DIR=$(cd ../../..; pwd)
+PROJECT_DIR=$(cd ../..; pwd)
 DEBBUILD_DIR=$(mktemp -u /tmp/debbuild.XXXX)
 SCRIPT_DIR=$(pwd)
 PACKAGE=verdictd
-PROJECT=inclavare-containers
+PROJECT=verdictd
 VERSION=$(cd ../..; cat ./VERSION)
 RELEASE_TARBALL=$DEBBUILD_DIR/v$VERSION.tar.gz
 RELEASE_TARBALL_URL=https://github.com/alibaba/inclavare-containers/archive/v$VERSION.tar.gz
