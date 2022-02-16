@@ -2,7 +2,7 @@
 # Introduction
 
 Verdictd is a remote attestation implementation comprising of a set of building blocks that utilize Intel/AMD Security features to discover, attest, and enable critical foundation security and confidential computing use-cases. 
-It relies on [RATS-TLS](https://github.com/alibaba/inclavare-containers/tree/master/rats-tls) to apply the remote attestation fundamentals and standard specifications to maintain a platform data collection service and an efficient verification engine to perform comprehensive trust evaluations. 
+It relies on [RATS-TLS](https://github.com/inclavare-containers/rats-tls) to apply the remote attestation fundamentals and standard specifications to maintain a platform data collection service and an efficient verification engine to perform comprehensive trust evaluations. 
 These trust evaluations can be used to govern different trust and security policies applied to any given workload.
 
 Verdictd creates an m-TLS(Mutal Transport Layer Security) connection with [Attestation Agent](https://github.com/confidential-containers/attestation-agent) via remote attestation.
@@ -13,7 +13,7 @@ Mainly functions:
 
 # Design
 
-Please refer [design doc](https://github.com/alibaba/inclavare-containers/tree/master/eaa/verdictd/docs/design) to view the design of verdictd.
+Please refer [design doc](https://github.com/inclavare-containers/verdictd/tree/master/docs/design) to view the design of verdictd.
 
 # Build Source Code
 
@@ -58,7 +58,7 @@ User can use `--listen` option to specify a listen address.
 ```bash
 verdictd --listen 127.0.0.1:1111
 ```
-User can use `--attester`, `--verifier`, `--tls`, `--crypto` and `--mutual` options to specific rats-tls uses instances's type. See details: [RATS-TLS](https://github.com/alibaba/inclavare-containers/tree/master/rats-tls)
+User can use `--attester`, `--verifier`, `--tls`, `--crypto` and `--mutual` options to specific rats-tls uses instances's type. See details: [RATS-TLS](https://github.com/inclavare-containers/rats-tls)
 
 User can use `--client-api` option to specify client-api server's listen address.
 ```bash
