@@ -1,6 +1,7 @@
 use tonic::{Request, Response, Status};
 use crate::client_api::api;
-use crate::policy_engine::opa;
+use crate::resources;
+use crate::policy_engine;
 
 use api::clientApi::opa_service_server::OpaService;
 use api::clientApi::{SetOpaPolicyRequest, SetOpaPolicyResponse};
@@ -31,7 +32,7 @@ impl OpaService for opaService {
                 &empty
             });
 
-        let res = opa::opa_engine::set_raw_policy(name, content)
+        let res = resources::opa::set_policy(name, content)
             .and_then(|_| {
                 let res = SetOpaPolicyResponse {
                     status: "OK".as_bytes().to_vec(),
@@ -57,7 +58,7 @@ impl OpaService for opaService {
                 "".to_string()
             });
 
-        let res = opa::opa_engine::export(&name)
+        let res = resources::opa::export(&name)
             .and_then(|content| {
                 let res = ExportOpaPolicyResponse {
                     status: "OK".as_bytes().to_vec(),
@@ -94,7 +95,7 @@ impl OpaService for opaService {
         
         info!("content: {}", content);
             
-        let res = opa::opa_engine::set_reference(name, content)
+        let res = resources::opa::set_reference(name, content)
             .and_then(|_| {
                 let res = SetOpaReferenceResponse {
                     status: "OK".as_bytes().to_vec(),
@@ -120,7 +121,7 @@ impl OpaService for opaService {
                 "".to_string()
             });
 
-        let res = opa::opa_engine::export(&name)
+        let res = resources::opa::export(&name)
             .and_then(|content| {
                 let res = ExportOpaReferenceResponse {
                     status: "OK".as_bytes().to_vec(),
@@ -212,7 +213,7 @@ impl OpaService for opaService {
             return Ok(Response::new(res))
         }
     
-        let msg = opa::opa_engine::make_decision_ext(
+        let msg = policy_engine::opa::opa_engine::make_decision_ext(
             &policyname, 
             &policycontent,
             request.policylocal,

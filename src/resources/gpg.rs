@@ -1,21 +1,23 @@
 use std::fs;
-use std::io::prelude::*;
 use std::path::Path;
-use base64;
+use crate::resources::file;
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+
+lazy_static! {
+    // Global file lock
+    pub static ref FILE_LOCK: RwLock<u32> = RwLock::new(0);
+}
 
 pub const GPG_PATH: &str = "/opt/verdictd/gpg/";
 pub const GPG_KEYRING: &str = "/opt/verdictd/gpg/keyring.gpg";
 
-pub fn export_base64(name: &str) -> Result<String, String> {
-    fs::File::open(name)
-        .map_err(|e| e.to_string())
-        .and_then(|mut file| {
-            let mut contents = Vec::new();
-            let res = file.read_to_end(&mut contents)
-                .map_err(|e| e.to_string())
-                .and_then(|_| Ok(base64::encode(contents)));
-            res
-        })
+pub fn export_base64() -> Result<String, String> {
+    let lock = FILE_LOCK.read();
+    assert_eq!(*lock, 0);
+
+    file::export_base64(GPG_KEYRING)
+        .map_err(|e| format!("export GPG keyring failed:{:?}", e))
 }
 
 pub fn default() -> Result<(), String> {

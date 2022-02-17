@@ -27,7 +27,7 @@ impl GpgService for gpgService {
             .output()
             .expect("Failed to list GPG keyring");
 
-        println!("status: {}", output.status);
+        info!("status: {}", output.status);
 
         let res = ListGpgKeysResponse {
             keys: output.stdout.to_vec()
@@ -59,7 +59,6 @@ impl GpgService for gpgService {
         });
         
         let output = child.wait_with_output().expect("Failed to read stdout");
-        //println!("status: {:?}", &output);
 
         let res = ImportGpgKeyResponse {
             status: output.stderr.to_vec()
@@ -86,7 +85,7 @@ impl GpgService for gpgService {
             .output()
             .expect("Failed to import GPG key");
 
-        println!("status: {}", output.status);
+        info!("status: {}", output.status);
 
         let res = if output.status.success() {
             DeleteGpgKeyResponse {
@@ -105,7 +104,7 @@ impl GpgService for gpgService {
         &self,
         _request: Request<ExportGpgKeyringRequest>,
     ) -> Result<Response<ExportGpgKeyringResponse>, Status> {
-        let res = gpg::export_base64(gpg::GPG_KEYRING)
+        let res = gpg::export_base64()
             .and_then(|content| {
                 let res = ExportGpgKeyringResponse {
                     status: "OK".as_bytes().to_vec(),
@@ -114,6 +113,7 @@ impl GpgService for gpgService {
                 Ok(res)
             })
             .unwrap_or_else(|e| {
+                info!("export_gpg_keyring err:{}", e);
                 ExportGpgKeyringResponse {
                     status: e.into_bytes(),
                     content: "".as_bytes().to_vec(),
