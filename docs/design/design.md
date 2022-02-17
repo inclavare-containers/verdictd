@@ -35,7 +35,7 @@ These trust evaluations can be used to govern different trust and security polic
 
 The bottom part of the architecture diagram indicates the various HW-TEE environments that are supported by Verdictd.
 It implements a GRPC server that client can use to set Verdictd's configurations and OPA policy files.
-Currently, it relies on [rats-tls](https://github.com/alibaba/inclavare-containers/tree/master/rats-tls) to execute remote attestation procedures and build a secure & trusted channel with an HW-TEE environment.
+Currently, it relies on [rats-tls](https://github.com/inclavare-containers/rats-tls) to execute remote attestation procedures and build a secure & trusted channel with an HW-TEE environment.
 
 ## Modular design with scalability
 
