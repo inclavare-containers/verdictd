@@ -91,6 +91,40 @@ fn handle_echo(request: &Value) -> Result<String, String> {
     Ok(data.to_owned())
 }
 
+fn handle_get_policy() -> Result<String, String> {
+    resources::image::export_base64(resources::image::POLICY)
+        .map_err(|e| format!("Can't fetch policy.json file, error:{}", e))
+}
+
+fn handle_get_sigstore_config() -> Result<String, String> {
+    resources::image::export_base64(resources::image::SIGSTORE)
+        .map_err(|e| format!("Can't fetch sigstore.yaml file, error:{}", e))
+}
+
+fn handle_get_gpg_keyring() -> Result<String, String> {
+    resources::gpg::export_base64()
+        .map_err(|e| format!("Can't fetch gpg keyring file, error:{}", e))
+}
+
+fn handle_get_resource_info(request: &Value) -> Result<String, String> {
+    let mut response = serde_json::Map::new();
+    response.insert("status".to_string(), Value::String("OK".to_string()));
+
+    match request["name"].as_str().unwrap() {
+        "GPG Keyring" => resources::gpg::size_base64(),
+        "Policy" => resources::image::size_base64(resources::image::POLICY),
+        "Sigstore Config" => resources::image::size_base64(resources::image::SIGSTORE),
+        _ => Err("file name error".to_string())
+    }
+    .map_err(|e| e)
+    .and_then(|size| {
+        let mut info = serde_json::Map::new();
+        info.insert("base64size".to_string(), Value::String(size.to_string()));
+        response.insert("data".to_string(), Value::Object(info));
+        Ok(Value::Object(response).to_string())
+    })
+}
+
 fn error_message(e: String) -> Result<String, ()> {
     let msg = serde_json::json!({
         "status": "Fail",
@@ -133,6 +167,34 @@ pub fn handle(request: &[u8]) -> Result<(String, u8), String> {
                     e
                 });
             Ok((response, rats_tls::ACTION_DISCONNECT))
+        },
+        "Get Policy" => {
+            let response = handle_get_policy()
+                .unwrap_or_else(|_e| {
+                    base64::encode("Error")
+                });
+            Ok((response, rats_tls::ACTION_NONE))
+        },
+        "Get Sigstore Config" => {
+            let response = handle_get_sigstore_config()
+                .unwrap_or_else(|_e| {
+                    base64::encode("Error")
+                });
+            Ok((response, rats_tls::ACTION_NONE))
+        },
+        "Get GPG Keyring" => {
+            let response = handle_get_gpg_keyring()
+                .unwrap_or_else(|_e| {
+                    base64::encode("Error")
+                });
+            Ok((response, rats_tls::ACTION_NONE))
+        },
+        "Get Resource Info" => {
+            let response = handle_get_resource_info(&parsed_request)
+                .unwrap_or_else(|e| {
+                    error_message(e).unwrap()
+                });
+            Ok((response, rats_tls::ACTION_NONE))
         },
         _ => Err("Command error".to_string()),
     };

@@ -20,6 +20,15 @@ pub fn export_base64() -> Result<String, String> {
         .map_err(|e| format!("export GPG keyring failed:{:?}", e))
 }
 
+pub fn size_base64() -> Result<usize, String> {
+    let lock = FILE_LOCK.read();
+    assert_eq!(*lock, 0);
+    
+    file::export_base64(GPG_KEYRING)
+        .map_err(|e| format!("Fetch GPG keyring size failed:{:?}", e))
+        .and_then(|content| Ok(content.len()))
+}
+
 pub fn default() -> Result<(), String> {
     if !Path::new(&GPG_PATH.to_string()).exists() {
         fs::create_dir_all(GPG_PATH)
