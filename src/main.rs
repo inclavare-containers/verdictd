@@ -5,7 +5,6 @@
 
 use clap::{App, Arg};
 use shadow_rs::shadow;
-use policy_engine::*;
 use resources::*;
 
 mod attestation_agent;
@@ -32,7 +31,7 @@ async fn main() {
     );
     info!("Verdictd info: {}", version);
 
-    match opa::opa_engine::default() {
+    match resources::opa::default() {
         Ok(_) => {}
         Err(e) => {
             error!("opa: {}", e);

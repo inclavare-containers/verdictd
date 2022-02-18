@@ -2,7 +2,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-use crate::policy_engine::opa::opa_engine::*;
+use crate::resources;
+use crate::policy_engine;
 use base64;
 use foreign_types::{ForeignType, ForeignTypeRef, Opaque};
 use std::ops::{Deref, DerefMut};
@@ -171,7 +172,7 @@ impl RatsTls {
             "svn": ev.security_version
         });
 
-        make_decision(OPA_POLICY_SGX, OPA_DATA_SGX, &input.to_string())
+        policy_engine::opa::opa_engine::make_decision(resources::opa::OPA_POLICY_SGX, resources::opa::OPA_DATA_SGX, &input.to_string())
             .map_err(|e| format!("make_decision error: {}", e))
             .and_then(|res| {
                 serde_json::from_str(&res).map_err(|_| "Json unmashall failed".to_string())
