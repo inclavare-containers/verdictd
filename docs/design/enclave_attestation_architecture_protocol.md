@@ -148,21 +148,10 @@ It will respond to the `policy.json` file if it's executed successfully.
 
 ### Success
 
-```JSON
-{
-    "status": "OK"
-    "data": "xxxxxxxx<base64encode>"
-}
-```
+Directly return the base64 encoded policy file.
 ### Failed
 
-```JSON
-{
-    "status": "Fail"
-    "data": null
-    "error": "Can't fetch policy.json file"
-}
-```
+Send base64 encoded `"Error"`.
 
 # Get Sigstore
 
@@ -183,22 +172,10 @@ It will respond to the `sigstore.yaml` file if it's executed successfully.
 
 ### Success
 
-```JSON
-{
-    "status": "OK"
-    "data": "xxxxxxxx<base64encode>"
-}
-```
-
+Directly return the base64 encoded sigstore config file.
 ### Failed
 
-```JSON
-{
-    "status": "Fail"
-    "data": null
-    "error": "Can't fetch sigstore.yaml file"
-}
-```
+Send base64 encoded `"Error"`.
 
 # Get GPG
 
@@ -219,10 +196,38 @@ It will respond to the base64 formated GPG keyring file.
 
 ### Success
 
+Directly return the base64 encoded GPG key ring file.
+### Failed
+
+Send base64 encoded `"Error"`.
+
+# Get Resource Info
+
+Get the information of the resource which will be requested.
+
+## Request
+
 ```JSON
 {
-    "status": "OK"
-    "data": "xxxxxxxx<base64encode>"
+    "command": "Get Resource Info",
+    "name":""
+}
+```
+
+The `"name"` can be `"Policy", "Sigstore Config", "GPG Keyring"`.
+
+## Response
+
+It will respond to the information map of that resource.
+
+### Success
+
+```JSON
+{
+    "status": "OK",
+    "data": {
+        "base64size": "4096"
+    }
 }
 ```
 
@@ -230,8 +235,8 @@ It will respond to the base64 formated GPG keyring file.
 
 ```JSON
 {
-    "status": "Fail"
-    "data": null
-    "error": "Can't fetch GPG keyring"
+    "status": "Fail",
+    "data": null,
+    "error": "Can't Get Resource information"
 }
 ```
