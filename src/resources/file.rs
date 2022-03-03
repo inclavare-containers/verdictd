@@ -69,3 +69,9 @@ pub fn set(name: &str, content: &str) -> Result<(), String> {
             Ok(())
         })
 }
+
+pub fn size(name: &str) -> Result<usize, String> {
+    fs::metadata(name)
+        .map_err(|e| e.to_string())
+        .and_then(|metadata| Ok(metadata.len() as usize))
+}

@@ -34,6 +34,15 @@ pub fn set(name: &str, content: &str) -> Result<(), String> {
     file::set(name, content)
 }
 
+pub fn size_base64(name: &str) -> Result<usize, String> {
+    let lock = FILE_LOCK.write();
+    assert_eq!(*lock, 0);
+
+    file::export_base64(name)
+        .map_err(|e| format!("Fetch {} size failed:{:?}", name, e))
+        .and_then(|content| Ok(content.len()))
+}
+
 pub fn default() -> Result<(), String> {
     if !Path::new(&IMAGE_PATH.to_string()).exists() {
         fs::create_dir_all(IMAGE_PATH)
