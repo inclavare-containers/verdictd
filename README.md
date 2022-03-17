@@ -36,7 +36,7 @@ Install bindgen tool
 cargo install protobuf
 cargo install bindgen
 
-# Linux(Centos/RHEL)
+# Linux(RHEL)
 yum install -y clang-libs clang-devel
 
 # Linux(Ubuntu)
