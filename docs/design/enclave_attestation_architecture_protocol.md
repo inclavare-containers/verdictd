@@ -151,7 +151,14 @@ It will respond to the `policy.json` file if it's executed successfully.
 Directly return the base64 encoded policy file.
 ### Failed
 
-Send base64 encoded `"Error"`.
+Send base64 encoded error json string:
+
+```json
+{
+    "status": "Fail",
+    "error": ""
+}
+```
 
 # Get Sigstore
 
@@ -175,7 +182,14 @@ It will respond to the `sigstore.yaml` file if it's executed successfully.
 Directly return the base64 encoded sigstore config file.
 ### Failed
 
-Send base64 encoded `"Error"`.
+Send base64 encoded error json string:
+
+```json
+{
+    "status": "Fail",
+    "error": ""
+}
+```
 
 # Get GPG
 
@@ -199,7 +213,14 @@ It will respond to the base64 formated GPG keyring file.
 Directly return the base64 encoded GPG key ring file.
 ### Failed
 
-Send base64 encoded `"Error"`.
+Send base64 encoded error json string:
+
+```json
+{
+    "status": "Fail",
+    "error": ""
+}
+```
 
 # Get Resource Info
 
@@ -236,7 +257,6 @@ It will respond to the information map of that resource.
 ```JSON
 {
     "status": "Fail",
-    "data": null,
     "error": "Can't Get Resource information"
 }
 ```
