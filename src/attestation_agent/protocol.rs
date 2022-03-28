@@ -135,6 +135,15 @@ fn error_message(e: String) -> Result<String, ()> {
     Ok(msg)
 }
 
+fn error_message2(e: String) -> Result<String, ()> {
+    let msg = serde_json::json!({
+        "status": "Fail",
+        "error": e
+    })
+    .to_string();
+    Ok(msg)
+}
+
 pub fn handle(request: &[u8]) -> Result<(String, u8), String> {
     let parsed_request: Value = match serde_json::from_slice(request) {
         Ok(r) => r,
@@ -170,29 +179,29 @@ pub fn handle(request: &[u8]) -> Result<(String, u8), String> {
         },
         "Get Policy" => {
             let response = handle_get_policy()
-                .unwrap_or_else(|_e| {
-                    base64::encode("Error")
+                .unwrap_or_else(|e| {
+                    base64::encode(error_message2(e).unwrap())
                 });
             Ok((response, rats_tls::ACTION_NONE))
         },
         "Get Sigstore Config" => {
             let response = handle_get_sigstore_config()
-                .unwrap_or_else(|_e| {
-                    base64::encode("Error")
+                .unwrap_or_else(|e| {
+                    base64::encode(error_message2(e).unwrap())
                 });
             Ok((response, rats_tls::ACTION_NONE))
         },
         "Get GPG Keyring" => {
             let response = handle_get_gpg_keyring()
-                .unwrap_or_else(|_e| {
-                    base64::encode("Error")
+                .unwrap_or_else(|e| {
+                    base64::encode(error_message2(e).unwrap())
                 });
             Ok((response, rats_tls::ACTION_NONE))
         },
         "Get Resource Info" => {
             let response = handle_get_resource_info(&parsed_request)
                 .unwrap_or_else(|e| {
-                    error_message(e).unwrap()
+                    error_message2(e).unwrap()
                 });
             Ok((response, rats_tls::ACTION_NONE))
         },
