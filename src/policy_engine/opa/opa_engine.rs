@@ -2,7 +2,7 @@ use std::ffi::CStr;
 use std::os::raw::c_char;
 use crate::resources::opa;
 
-/// Link import cgo function
+// Link import cgo function
 #[link(name = "opa")]
 extern "C" {
     pub fn makeDecisionGo(policy: GoString, data: GoString, input: GoString) -> *mut c_char;
