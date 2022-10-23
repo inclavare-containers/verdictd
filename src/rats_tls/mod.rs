@@ -187,12 +187,37 @@ impl RatsTls {
             })
     }
 
+    fn csv_callback(ev: rtls_csv_evidence_t) -> Result<(), String> {
+        let measure_b64 =
+            base64::encode(unsafe { std::slice::from_raw_parts(ev.measure, 32).to_vec() });
+
+        let input = serde_json::json!({ "measure": measure_b64 });
+
+        policy_engine::opa::opa_engine::make_decision(
+            resources::opa::OPA_POLICY_CSV,
+            resources::opa::OPA_DATA_CSV,
+            &input.to_string(),
+        )
+        .map_err(|e| format!("make_decision error: {}", e))
+        .and_then(|res| serde_json::from_str(&res).map_err(|_| "Json unmashall failed".to_string()))
+        .and_then(|res: serde_json::Value| {
+            if res["allow"] == true {
+                Ok(())
+            } else {
+                error!("parseInfo: {}", res["parseInfo"].to_string());
+                Err("decision is false".to_string())
+            }
+        })
+    }
+
     #[no_mangle]
     extern "C" fn callback(evidence: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int {
         info!("Verdictd Rats-TLS callback function is called.");
         let evidence = evidence as *mut rtls_evidence;
         let res = if unsafe { (*evidence).type_ } == enclave_evidence_type_t_SGX_ECDSA {
             Self::sgx_callback(unsafe { (*evidence).__bindgen_anon_1.sgx })
+        } else if unsafe { (*evidence).type_ } == enclave_evidence_type_t_CSV {
+            Self::csv_callback(unsafe { (*evidence).__bindgen_anon_1.csv })
         } else {
             Err("Not implemented".to_string())
         };
