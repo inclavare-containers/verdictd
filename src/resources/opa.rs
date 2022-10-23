@@ -14,6 +14,9 @@ pub const OPA_PATH: &str = "/opt/verdictd/opa/";
 pub const OPA_POLICY_SGX: &str = "sgxPolicy.rego";
 pub const OPA_DATA_SGX: &str = "sgxData";
 
+pub const OPA_POLICY_CSV: &str = "csvPolicy.rego";
+pub const OPA_DATA_CSV: &str = "csvData";
+
 pub fn set_reference(name: &str, reference: &str) -> Result<(), String> {
     let lock = FILE_LOCK.write();
     assert_eq!(*lock, 0);
