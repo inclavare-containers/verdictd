@@ -5,11 +5,8 @@ on: pull_request
 jobs:
   basic_complication_check:
     # Run all steps in the compilation testing containers
-    strategy:
-      matrix:
-        tag: [ubuntu18.04, alinux2]
 
-    container: runetest/compilation-testing:${{ matrix.tag }}
+    container: runetest/compilation-testing:ubuntu18.04
 
     # Use GitHub-hosted runner Ubuntu 18.04
     runs-on: ubuntu-18.04
@@ -28,8 +25,11 @@ jobs:
           echo "CPU_NUM=$(nproc --all)" >> $GITHUB_ENV;
 
       - name: Compile "verdictd"
-        run:
-          source /root/.bashrc && make -j${CPU_NUM} && make install && make clean
+        run: |
+          rustup update stable
+          apt-get update && apt-get install -y curl libcurl4-openssl-dev
+          source /root/.bashrc
+          make -j${CPU_NUM} && make install && make clean
         env:
           HOME: /root
           GOPROXY: "https://goproxy.cn,direct"
