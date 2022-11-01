@@ -12,6 +12,8 @@ lazy_static! {
 pub const IMAGE_PATH: &str = "/opt/verdictd/image/";
 pub const POLICY: &str = "/opt/verdictd/image/policy.json";
 pub const SIGSTORE: &str = "/opt/verdictd/image/sigstore.yaml";
+pub const COSIGN: &str = "/opt/verdictd/image/cosign.key";
+pub const CREDENTIAL: &str = "/opt/verdictd/image/auth.json";
 
 pub fn export(name: &str) -> Result<String, String> {
     let lock = FILE_LOCK.read();

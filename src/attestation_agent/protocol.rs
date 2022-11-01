@@ -101,6 +101,16 @@ fn handle_get_sigstore_config() -> Result<String, String> {
         .map_err(|e| format!("Can't fetch sigstore.yaml file, error:{}", e))
 }
 
+fn handle_get_cosign_key() -> Result<String, String> {
+    resources::image::export_base64(resources::image::COSIGN)
+        .map_err(|e| format!("Can't fetch cosign key file, error:{}", e))
+}
+
+fn handle_get_credential() -> Result< String, String> {
+    resources::image::export_base64(resources::image::CREDENTIAL)
+        .map_err(|e| format!("Can't fetch cosign key file, error:{}", e))
+}
+
 fn handle_get_gpg_keyring() -> Result<String, String> {
     resources::gpg::export_base64()
         .map_err(|e| format!("Can't fetch gpg keyring file, error:{}", e))
@@ -114,6 +124,8 @@ fn handle_get_resource_info(request: &Value) -> Result<String, String> {
         "GPG Keyring" => resources::gpg::size_base64(),
         "Policy" => resources::image::size_base64(resources::image::POLICY),
         "Sigstore Config" => resources::image::size_base64(resources::image::SIGSTORE),
+        "Cosign Key" => resources::image::size_base64(resources::image::COSIGN),
+        "Credential" => resources::image::size_base64(resources::image::CREDENTIAL),
         _ => Err("file name error".to_string())
     }
     .map_err(|e| e)
@@ -205,6 +217,20 @@ pub fn handle(request: &[u8]) -> Result<(String, u8), String> {
                 });
             Ok((response, rats_tls::ACTION_NONE))
         },
+        "Get Cosign Key" => {
+            let response = handle_get_cosign_key()
+                .unwrap_or_else(|e| {
+                    base64::encode(error_message2(e).unwrap())
+                });
+            Ok((response, rats_tls::ACTION_NONE))
+        },
+        "Get Credential" => {
+            let response = handle_get_credential()
+                .unwrap_or_else(|e| {
+                    base64::encode(error_message2(e).unwrap())
+                });
+            Ok((response, rats_tls::ACTION_NONE))
+        }
         _ => Err("Command error".to_string()),
     };
 
