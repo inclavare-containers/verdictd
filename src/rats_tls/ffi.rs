@@ -602,6 +602,7 @@ fn bindgen_test_layout_rtls_sgx_evidence() {
         )
     );
 }
+pub type rtls_csv_evidence_t = rtls_csv_evidence;
 pub type rtls_sgx_evidence_t = rtls_sgx_evidence;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -620,6 +621,113 @@ fn bindgen_test_layout_rtls_tdx_evidence() {
     );
 }
 pub type rtls_tdx_evidence_t = rtls_tdx_evidence;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct rtls_csv_evidence {
+    pub vm_id: *mut u8,
+    pub vm_id_sz: u32,
+    pub vm_version: *mut u8,
+    pub vm_version_sz: u32,
+    pub measure: *mut u8,
+    pub measure_sz: u32,
+    pub policy: *mut u8,
+    pub policy_sz: u32,
+}
+#[test]
+fn bindgen_test_layout_rtls_csv_evidence() {
+    const UNINIT: ::std::mem::MaybeUninit<rtls_csv_evidence> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<rtls_csv_evidence>(),
+        64usize,
+        concat!("Size of: ", stringify!(rtls_csv_evidence))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<rtls_csv_evidence>(),
+        8usize,
+        concat!("Alignment of ", stringify!(rtls_csv_evidence))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vm_id) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rtls_csv_evidence),
+            "::",
+            stringify!(vm_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vm_id_sz) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rtls_csv_evidence),
+            "::",
+            stringify!(vm_id_sz)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vm_version) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rtls_csv_evidence),
+            "::",
+            stringify!(vm_version)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vm_version_sz) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rtls_csv_evidence),
+            "::",
+            stringify!(vm_version_sz)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).measure) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rtls_csv_evidence),
+            "::",
+            stringify!(measure)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).measure_sz) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rtls_csv_evidence),
+            "::",
+            stringify!(measure_sz)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rtls_csv_evidence),
+            "::",
+            stringify!(policy)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).policy_sz) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(rtls_csv_evidence),
+            "::",
+            stringify!(policy_sz)
+        )
+    );
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ehd {
@@ -695,6 +803,7 @@ fn bindgen_test_layout_ehd() {
 pub type ehd_t = ehd;
 pub const enclave_evidence_type_t_SGX_ECDSA: enclave_evidence_type_t = 1;
 pub const enclave_evidence_type_t_TDX: enclave_evidence_type_t = 2;
+pub const enclave_evidence_type_t_CSV: enclave_evidence_type_t = 3;
 pub type enclave_evidence_type_t = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -710,6 +819,7 @@ pub struct rtls_evidence {
 pub union rtls_evidence__bindgen_ty_1 {
     pub sgx: rtls_sgx_evidence_t,
     pub tdx: rtls_tdx_evidence_t,
+    pub csv: rtls_csv_evidence_t,
 }
 #[test]
 fn bindgen_test_layout_rtls_evidence__bindgen_ty_1() {
