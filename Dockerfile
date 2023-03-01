@@ -1,56 +1,69 @@
-FROM rust:1.67-slim
+FROM registry.cn-hangzhou.aliyuncs.com/alinux/alinux3 as builder
 
-WORKDIR /usr/src
+WORKDIR /usr/src/verdictd
 
 ENV RATS_TLS_COMMIT 5de6fc3
 ENV VERDICTD_COMMIT 1d632be
 
-ENV ALIYUN_PCCS_URL "https://sgx-dcap-server.cn-beijing.aliyuncs.com/sgx/certification/v4/"
+COPY . .
 
 # Install Build Dependencies
-RUN apt-get install -y \
+RUN yum install -y yum-utils
+RUN yum install -y \
 clang \
 cmake \
 curl \
 git \
 gnupg \
-libclang-dev \
-libcurl4-openssl-dev \
-libprotobuf-dev \
-libssl-dev \
-llvm-dev \
+clang-devel \
+openssl-devel \
+protobuf-devel \
+llvm-devel \
 make \
 pkg-config \
 protobuf-compiler \
-wget
+wget \
+tar
 RUN wget https://go.dev/dl/go1.20.1.linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf go1.20.1.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-# Install TDX Build Dependencies
-RUN curl -L https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key | apt-key add -
-RUN echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu focal main' | tee /etc/apt/sources.list.d/intel-sgx.list
-RUN apt-get update
-RUN apt-get install -y \
-libtdx-attest \
-libtdx-attest-dev \
-libsgx-dcap-ql-dev \
-libsgx-dcap-default-qpl \
-libsgx-dcap-quote-verify \
-libsgx-dcap-quote-verify-dev
+# Install TDX Dependencies
+RUN wget https://download.01.org/intel-sgx/sgx-dcap/1.15/linux/distro/Anolis86/sgx_rpm_local_repo.tgz; \
+tar xzvf sgx_rpm_local_repo.tgz; \
+yum-config-manager --add-repo file://$(realpath sgx_rpm_local_repo); \
+yum install -y --setopt=install_weak_deps=False --nogpgcheck libtdx-attest libsgx-dcap-default-qpl libsgx-dcap-quote-verify
 
-# Intel PCCS URL Configurations
-RUN sed -i "s|\"pccs_url\":.*$|\"pccs_url\":\"$ALIYUN_PCCS_URL\",|" /etc/sgx_default_qcnl.conf;
-
-# Build and Install rats-tls
-RUN git clone https://github.com/inclavare-containers/rats-tls
-RUN cd rats-tls; \
-git reset --hard ${RATS_TLS_COMMIT}; \
-cmake -DRATS_TLS_BUILD_MODE="tdx" -DBUILD_SAMPLES=on -H. -Bbuild; \
-make -C build install
+# Install rats-tls
+RUN rpm -ivh /usr/src/verdictd/deps/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm
 
 # Build and Install verdictd
-RUN git clone https://github.com/inclavare-containers/verdictd
-RUN cd verdictd; \
-git reset --hard ${VERDICTD_COMMIT}; \
+RUN git reset --hard ${VERDICTD_COMMIT}; \
 make && make install
+
+
+FROM registry.cn-hangzhou.aliyuncs.com/alinux/alinux3
+
+RUN yum install -y yum-utils
+RUN yum install -y clang wget tar
+
+# Install TDX Dependencies
+RUN wget https://download.01.org/intel-sgx/sgx-dcap/1.15/linux/distro/Anolis86/sgx_rpm_local_repo.tgz; \
+tar xzvf sgx_rpm_local_repo.tgz; \
+yum-config-manager --add-repo file://$(realpath sgx_rpm_local_repo); \
+yum install -y --setopt=install_weak_deps=False --nogpgcheck libtdx-attest libsgx-dcap-default-qpl libsgx-dcap-quote-verify
+
+# Install rats-tls
+COPY --from=builder /usr/src/verdictd/deps/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm /usr/src/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm
+RUN rpm -ivh /usr/src/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm
+
+# Intel PCCS URL Configurations
+RUN sed -i "s|\"use_secure_cert\":.*$|\"use_secure_cert\":false,|" /etc/sgx_default_qcnl.conf;
+
+COPY --from=builder /usr/local/lib/libopa.so /usr/local/lib/libopa.so
+COPY --from=builder /usr/local/bin/verdictd /usr/local/bin/verdictd
+
+CMD ["verdictd", "--listen", "0.0.0.0:30000"]
+
+VOLUME /opt/verdictd
+EXPOSE 30000
