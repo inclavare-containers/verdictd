@@ -5,15 +5,16 @@ pub mod client_api {
 }
 
 mod opa;
-mod gpg;
-mod image;
+mod resource;
 
 #[macro_use]
 extern crate log;
 
 #[tokio::main]
 async fn main() {
-    env_logger::builder().filter(None, log::LevelFilter::Info).init();
+    env_logger::builder()
+        .filter(None, log::LevelFilter::Info)
+        .init();
 
     let matches = App::new("verdict")
         .version("0.1")
@@ -101,51 +102,17 @@ async fn main() {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("list_gpg_keys")
-                .long("list-gpg-keys")
-                .help("list all gpg public keys")
+            Arg::with_name("get_resource")
+                .long("get_resource")
+                .value_name("RESOURCE_ID")
+                .help("get resource from verdictd with id <RESOURCE_ID>")
         )
         .arg(
-            Arg::with_name("import_gpg_key")
-                .long("import-gpg-key")
-                .value_name("KEY_FILE")
-                .help("import a GPG public key")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("delete_gpg_key")
-                .long("delete-gpg-key")
-                .value_name("KEY_ID")
-                .help("delete the keyid designated GPG public key")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("export_gpg_keyring")
-                .long("export-gpg-keyring")
-                .help("export GPG keyring with Base64 format")
-        )
-        .arg(
-            Arg::with_name("export_image_sigstore")
-                .long("export-image-sigstore")
-                .help("export image sigstore file")
-        )
-        .arg(
-            Arg::with_name("set_image_sigstore")
-                .long("set-image-sigstore")
-                .value_name("SIGSTORE_PATH")
-                .help("set image sigstore according to the contents in <SIGSTORE_PATH>.")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("export_image_policy")
-                .long("export-image-policy")
-                .help("export image policy file")
-        )
-        .arg(
-            Arg::with_name("set_image_policy")
-                .long("set-image-policy")
-                .value_name("POLICY_PATH")
-                .help("set image policy according to the contents in <POLICY_PATH>.")
+            Arg::with_name("set_resource")
+                .long("set_resource")
+                .value_name("RESOURCE_ID")
+                .value_name("RESOURCE_PATH")
+                .help("set resource with id <RESOURCE_ID> according to the contents in <RESOURCE_PATH>.")
                 .takes_value(true),
         )
         .get_matches();
@@ -159,7 +126,11 @@ async fn main() {
 
     // set_opa_policy
     if matches.is_present("set_opa_policy") {
-        opa::set_policy_cmd(matches.values_of("set_opa_policy").unwrap().collect(), &client_api).await;
+        opa::set_policy_cmd(
+            matches.values_of("set_opa_policy").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     // export_opa_policy
@@ -172,12 +143,21 @@ async fn main() {
         if !path.ends_with("/") {
             path = format!("{}/", path);
         }
-        opa::export_policy_cmd(matches.value_of("export_opa_policy").unwrap(), path, &client_api).await;
+        opa::export_policy_cmd(
+            matches.value_of("export_opa_policy").unwrap(),
+            path,
+            &client_api,
+        )
+        .await;
     }
 
     // set data
     if matches.is_present("set_opa_reference") {
-        opa::set_reference_cmd(matches.values_of("set_opa_reference").unwrap().collect(), &client_api).await;
+        opa::set_reference_cmd(
+            matches.values_of("set_opa_reference").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     // export Data
@@ -190,70 +170,60 @@ async fn main() {
         if !path.ends_with("/") {
             path = format!("{}/", path);
         }
-        opa::export_reference_cmd(matches.value_of("export_opa_reference").unwrap(), path, &client_api).await;
+        opa::export_reference_cmd(
+            matches.value_of("export_opa_reference").unwrap(),
+            path,
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("test_opa_remote") {
-        opa::test_remote_cmd(matches.values_of("test_opa_remote").unwrap().collect(), &client_api).await;
+        opa::test_remote_cmd(
+            matches.values_of("test_opa_remote").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("test_opa_local") {
-        opa::test_local_cmd(matches.values_of("test_opa_local").unwrap().collect(), &client_api).await;
+        opa::test_local_cmd(
+            matches.values_of("test_opa_local").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("test_opa_local_policy") {
-        opa::test_localpolicy_cmd(matches.values_of("test_opa_local_policy").unwrap().collect(), &client_api).await;
+        opa::test_localpolicy_cmd(
+            matches
+                .values_of("test_opa_local_policy")
+                .unwrap()
+                .collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("test_opa_local_reference") {
-        opa::test_localreference_cmd(matches.values_of("test_opa_local_reference").unwrap().collect(), &client_api).await;
+        opa::test_localreference_cmd(
+            matches
+                .values_of("test_opa_local_reference")
+                .unwrap()
+                .collect(),
+            &client_api,
+        )
+        .await;
     }
 
-    if matches.is_present("list_gpg_keys") {
-        gpg::list_gpg_keys_cmd(&client_api).await;
+    if matches.is_present("get_resource") {
+        let resource_id = matches.value_of("RESOURCE_ID").unwrap();
+        resource::get_resource_cmd(resource_id, &client_api).await;
     }
 
-    if matches.is_present("import_gpg_key") {
-        gpg::import_gpg_key_cmd(matches.values_of("import_gpg_key").unwrap().collect(), &client_api).await;
-    }
-
-    if matches.is_present("export_gpg_keyring") {
-        gpg::export_gpg_keyring_cmd(&client_api).await;
-    }
-
-    if matches.is_present("delete_gpg_key") {
-        gpg::delete_gpg_key_cmd(matches.values_of("delete_gpg_key").unwrap().collect(), &client_api).await;
-    }
-
-    if matches.is_present("export_image_sigstore") {
-        let mut path: String = if matches.is_present("path") {
-            matches.value_of("path").unwrap().to_string()
-        } else {
-            "./".to_string()
-        };
-        if !path.ends_with("/") {
-            path = format!("{}/", path);
-        }
-        image::export_image_sigstore_cmd(path, &client_api).await;
-    }
-
-    if matches.is_present("set_image_sigstore") {
-        image::set_image_sigstore_cmd(matches.values_of("set_image_sigstore").unwrap().collect(), &client_api).await;
-    }
-
-    if matches.is_present("export_image_policy") {
-        let mut path: String = if matches.is_present("path") {
-            matches.value_of("path").unwrap().to_string()
-        } else {
-            "./".to_string()
-        };
-        if !path.ends_with("/") {
-            path = format!("{}/", path);
-        }
-        image::export_image_policy_cmd(path, &client_api).await;
-    }
-
-    if matches.is_present("set_image_policy") {
-        image::set_image_policy_cmd(matches.values_of("set_image_policy").unwrap().collect(), &client_api).await;
+    if matches.is_present("set_resource") {
+        let resource_id = matches.value_of("RESOURCE_ID").unwrap();
+        let resource_path = matches.value_of("RESOURCE_PATH").unwrap();
+        resource::set_resource_cmd(resource_path, resource_id, &client_api).await;
     }
 }

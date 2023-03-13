@@ -1,79 +1,68 @@
-use tonic::{Request, Response, Status};
+use std::sync::{Arc, Mutex};
+
+use crate::resources::directory_keymanager::KeyManager;
+use anyhow::*;
 use rand::*;
-use uuid::Uuid;
-use base64;
-use crate::client_api::api;
-use crate::resources::directory_key_manager;
+use tonic::{Request, Response, Status};
 
-use api::clientApi::key_manager_service_server::KeyManagerService;
-use api::clientApi::{CreateKeyRequest, CreateKeyResponse};
-use api::clientApi::{GetKeyRequest, GetKeyResponse};
-use api::clientApi::{DeleteKeyRequest, DeleteKeyResponse};
+use super::api::clientApi::{
+    key_manager_service_server::KeyManagerService, CreateKeyRequest, CreateKeyResponse,
+    DeleteKeyRequest, DeleteKeyResponse, GetKeyRequest, GetKeyResponse,
+};
 
-#[derive(Debug, Default)]
-pub struct keyManagerService {}
+// #[derive(Debug)]
+pub struct keyManagerService {
+    key_manager: Arc<Mutex<KeyManager>>,
+}
+
+impl keyManagerService {
+    pub fn new(inner: Arc<Mutex<KeyManager>>) -> Self {
+        Self { key_manager: inner }
+    }
+}
 
 #[tonic::async_trait]
 impl KeyManagerService for keyManagerService {
     async fn create_key(
         &self,
-        _request: Request<CreateKeyRequest>,
+        request: Request<CreateKeyRequest>,
     ) -> Result<Response<CreateKeyResponse>, Status> {
-        let kid = Uuid::new_v4().to_string();
+        let req = request.into_inner();
+        let kid = req.keyid;
         // generate a new key file with a new random key
         let mut key: [u8; 32] = [0; 32];
         rand::rngs::OsRng.fill_bytes(&mut key);
-        let res = directory_key_manager::set_key(&kid, &key)
-            .and_then(|_| {
-                let res = CreateKeyResponse {
-                    status: "OK".as_bytes().to_vec(),
-                    uuid: kid.into_bytes(),
-                };
-                Ok(res)
-            })
-            .unwrap_or_else(|_| {
-                CreateKeyResponse {
-                    status: "Greate key failed".as_bytes().to_vec(),
-                    uuid: "".as_bytes().to_vec(),
-                }
-            });           
+        self.key_manager
+            .lock()
+            .unwrap()
+            .set_key(&kid, &key)
+            .map_err(|e| Status::aborted(format!("create key failed {}", e)))?;
 
-        Ok(Response::new(res))
+        std::result::Result::Ok(Response::new(CreateKeyResponse {}))
     }
 
     async fn get_key(
         &self,
         request: Request<GetKeyRequest>,
     ) -> Result<Response<GetKeyResponse>, Status> {
-        let kid = String::from_utf8(request.into_inner().uuid)
-            .unwrap_or_else(|_| "00000000-0000-0000-0000-000000000000".to_string());
+        let kid = request.into_inner().keyid;
         info!("kid: {}", kid);
 
-        let res = directory_key_manager::get_key(&kid)
-            .and_then(|data| {
-                let res = GetKeyResponse {
-                    status: "OK".as_bytes().to_vec(),
-                    key: base64::encode(data).into_bytes(),
-                };
-                Ok(res)
-            })
-            .unwrap_or_else(|_| {
-                GetKeyResponse {
-                    status: "key is not exist".as_bytes().to_vec(),
-                    key: "".as_bytes().to_vec(),
-                }
-            });
+        let key = self
+            .key_manager
+            .lock()
+            .unwrap()
+            .get_key(&kid)
+            .map_err(|e| Status::aborted(format!("get key failed {}", e)))?;
+        let res = GetKeyResponse { key };
 
-        Ok(Response::new(res))   
+        std::result::Result::Ok(Response::new(res))
     }
 
     async fn delete_key(
         &self,
         _request: Request<DeleteKeyRequest>,
     ) -> Result<Response<DeleteKeyResponse>, Status> {
-        let res = DeleteKeyResponse {
-            status: "Not implemented".as_bytes().to_vec(),
-        };
-        Ok(Response::new(res))   
+        std::result::Result::Err(Status::aborted("Not Implemented"))
     }
 }

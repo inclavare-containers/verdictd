@@ -1,2 +1,2 @@
-pub mod rats_tls;
 mod protocol;
+pub mod rats_tls;

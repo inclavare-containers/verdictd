@@ -2,11 +2,19 @@ extern crate serde;
 
 use self::serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+/// `AnnotationPacket` is what a encrypted image layer's
+/// `org.opencontainers.image.enc.keys.provider.attestation-agent`
+/// annotation should contain when it is encrypted by CoCo's
+/// encryption modules. Please refer to issue
+/// <https://github.com/confidential-containers/attestation-agent/issues/113>
+#[derive(Serialize, Deserialize)]
 pub struct AnnotationPacket {
+    // Key ID to manage multiple keys
     pub kid: String,
-    pub wrapped_data: Vec<u8>,
-    pub iv: Vec<u8>,
-    pub algorithm: String,
-    pub key_length: u16,
+    // Encrypted key to unwrap (base64-encoded)
+    pub wrapped_data: String,
+    // Initialisation vector (base64-encoded)
+    pub iv: String,
+    // Wrap type to specify encryption algorithm and mode
+    pub wrap_type: String,
 }

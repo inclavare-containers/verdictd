@@ -1,9 +1,11 @@
+use crate::resources::file;
+
+use anyhow::*;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
-use crate::resources::file;
 
 lazy_static! {
     // Global file lock
@@ -27,7 +29,7 @@ pub fn set_reference(name: &str, reference: &str) -> Result<(), String> {
 
 /// Save the input raw policy file
 /// Note that the OPA binary program needs to be installed and placed in the system path
-pub fn set_policy(name: &str, policy: &str) -> Result<(), String> {
+pub fn set_policy(name: &str, policy: &str) -> Result<()> {
     let lock = FILE_LOCK.write();
     assert_eq!(*lock, 0);
 
@@ -43,11 +45,10 @@ pub fn set_policy(name: &str, policy: &str) -> Result<(), String> {
             if Path::new(&bak).exists() {
                 fs::copy(&bak, &src).unwrap();
             }
-            format!("Store policy failed: {}", e)
+            anyhow!("Store policy failed: {}", e)
         })
         .and_then(|_| {
-            let status = 
-                Command::new("opa")
+            let status = Command::new("opa")
                 .arg("check")
                 .arg(&src)
                 .status()
@@ -55,24 +56,22 @@ pub fn set_policy(name: &str, policy: &str) -> Result<(), String> {
                     if Path::new(&bak).exists() {
                         fs::copy(&bak, &src).unwrap();
                     }
-                    format!("Policy syntax check execution failed: {}", _e.to_string())
+                    anyhow!("Policy syntax check execution failed: {}", _e.to_string())
                 });
             status
         })
-        .and_then(|status| {
-            match status.success() {
-                true => {
-                    if Path::new(&bak).exists() {
-                        fs::remove_file(&bak).unwrap();
-                    }
-                    Ok(())
+        .and_then(|status| match status.success() {
+            true => {
+                if Path::new(&bak).exists() {
+                    fs::remove_file(&bak).unwrap();
                 }
-                false => {
-                    if Path::new(&bak).exists() {
-                        fs::copy(&bak, &src).unwrap();
-                    }
-                    Err(format!("Policy syntax check failed"))         
+                Ok(())
+            }
+            false => {
+                if Path::new(&bak).exists() {
+                    fs::copy(&bak, &src).unwrap();
                 }
+                bail!("Policy syntax check failed")
             }
         })
 }
@@ -85,10 +84,9 @@ pub fn export(name: &str) -> Result<String, String> {
     file::export_string(&name)
 }
 
-pub fn default() -> Result<(), String> {
+pub fn default() -> Result<()> {
     if !Path::new(&OPA_PATH.to_string()).exists() {
-        fs::create_dir_all(OPA_PATH)
-            .map_err(|_| format!("create {:?} failed", OPA_PATH))?;
+        fs::create_dir_all(OPA_PATH).map_err(|_| anyhow!("create {:?} failed", OPA_PATH))?;
     }
 
     if !Path::new(&(OPA_PATH.to_string() + OPA_POLICY_SGX)).exists() {
@@ -122,8 +120,11 @@ mrSigner_is_grant {
     input.mrSigner == data.mrSigner[_]
 }
 "#;
-        file::write(&(String::from(OPA_PATH) + OPA_POLICY_SGX), &policy.to_string())
-            .map_err(|e| format!("Set {} failed with error {:?}", OPA_POLICY_SGX, e))?;
+        file::write(
+            &(String::from(OPA_PATH) + OPA_POLICY_SGX),
+            &policy.to_string(),
+        )
+        .map_err(|e| anyhow!("Set {} failed with error {:?}", OPA_POLICY_SGX, e))?;
     }
 
     if !Path::new(&(OPA_PATH.to_string() + OPA_DATA_SGX)).exists() {
@@ -137,10 +138,13 @@ mrSigner_is_grant {
 
         let lock = FILE_LOCK.write();
         assert_eq!(*lock, 0);
-        
-        file::write(&(String::from(OPA_PATH) + OPA_DATA_SGX), &sgx_data.to_string())
-            .map_err(|e| format!("Set {} failed with error {:?}", OPA_DATA_SGX, e))?;
-    }    
+
+        file::write(
+            &(String::from(OPA_PATH) + OPA_DATA_SGX),
+            &sgx_data.to_string(),
+        )
+        .map_err(|e| anyhow!("Set {} failed with error {:?}", OPA_DATA_SGX, e))?;
+    }
 
     Ok(())
 }
