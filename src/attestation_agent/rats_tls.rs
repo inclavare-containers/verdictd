@@ -30,7 +30,8 @@ fn handle_client(
         /* get client request */
         let mut buffer = [0u8; 4096];
 
-        let n = tls.receive(&mut buffer)
+        let n = tls
+            .receive(&mut buffer)
             .map_err(|e| format!("tls client disconnect, code: {:?}", e))?;
 
         let (response, action) = protocol::handle(&buffer[..n])
@@ -78,7 +79,7 @@ pub fn server(
                 mutual,
                 0,
             ) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => error!("{}", e),
             }
         });

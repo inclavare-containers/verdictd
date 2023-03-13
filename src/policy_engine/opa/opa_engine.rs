@@ -1,6 +1,6 @@
+use crate::resources::opa;
 use std::ffi::CStr;
 use std::os::raw::c_char;
-use crate::resources::opa;
 
 // Link import cgo function
 #[link(name = "opa")]
@@ -40,7 +40,8 @@ pub fn make_decision(policy_name: &str, data_name: &str, input: &str) -> Result<
     // Call the function exported by cgo and process the returned decision
     let decision_buf: *mut c_char = unsafe { makeDecisionGo(policy_go, data_go, input_go) };
     let decision_str: &CStr = unsafe { CStr::from_ptr(decision_buf) };
-    decision_str.to_str()
+    decision_str
+        .to_str()
         .map_err(|e| e.to_string())
         .and_then(|str| Ok(str.to_string()))
 }
@@ -52,16 +53,17 @@ pub fn make_decision_ext(
     reference_name: &str,
     reference_content: &str,
     reference_remote: bool,
-    input: &str) -> Result<String, String> {
+    input: &str,
+) -> Result<String, String> {
     let policy = if policy_remote == true {
         policy_content.to_owned()
-    }else{
+    } else {
         opa::export(policy_name).unwrap()
     };
 
     let reference = if reference_remote == true {
         reference_content.to_owned()
-    }else{
+    } else {
         opa::export(reference_name).unwrap()
     };
 
@@ -83,7 +85,8 @@ pub fn make_decision_ext(
     // Call the function exported by cgo and process the returned decision
     let decision_buf: *mut c_char = unsafe { makeDecisionGo(policy_go, reference_go, input_go) };
     let decision_str: &CStr = unsafe { CStr::from_ptr(decision_buf) };
-    decision_str.to_str()
+    decision_str
+        .to_str()
         .map_err(|e| e.to_string())
         .and_then(|str| Ok(str.to_string()))
 }

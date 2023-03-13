@@ -2,8 +2,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-use crate::resources;
 use crate::policy_engine;
+use crate::resources;
 use base64;
 use foreign_types::{ForeignType, ForeignTypeRef, Opaque};
 use std::ops::{Deref, DerefMut};
@@ -172,19 +172,21 @@ impl RatsTls {
             "svn": ev.security_version
         });
 
-        policy_engine::opa::opa_engine::make_decision(resources::opa::OPA_POLICY_SGX, resources::opa::OPA_DATA_SGX, &input.to_string())
-            .map_err(|e| format!("make_decision error: {}", e))
-            .and_then(|res| {
-                serde_json::from_str(&res).map_err(|_| "Json unmashall failed".to_string())
-            })
-            .and_then(|res: serde_json::Value| {
-                if res["allow"] == true {
-                    Ok(())
-                } else {
-                    error!("parseInfo: {}", res["parseInfo"].to_string());
-                    Err("decision is false".to_string())
-                }
-            })
+        policy_engine::opa::opa_engine::make_decision(
+            resources::opa::OPA_POLICY_SGX,
+            resources::opa::OPA_DATA_SGX,
+            &input.to_string(),
+        )
+        .map_err(|e| format!("make_decision error: {}", e))
+        .and_then(|res| serde_json::from_str(&res).map_err(|_| "Json unmashall failed".to_string()))
+        .and_then(|res: serde_json::Value| {
+            if res["allow"] == true {
+                Ok(())
+            } else {
+                error!("parseInfo: {}", res["parseInfo"].to_string());
+                Err("decision is false".to_string())
+            }
+        })
     }
 
     fn csv_callback(ev: rtls_csv_evidence_t) -> Result<(), String> {

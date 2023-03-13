@@ -3,16 +3,17 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
+use anyhow::*;
 use clap::{App, Arg};
-use shadow_rs::shadow;
 use resources::*;
+use shadow_rs::shadow;
 
 mod attestation_agent;
 mod client_api;
 mod crypto;
+mod policy_engine;
 mod rats_tls;
 mod resources;
-mod policy_engine;
 
 #[macro_use]
 extern crate log;
@@ -20,8 +21,10 @@ extern crate log;
 shadow!(build);
 
 #[tokio::main]
-async fn main() {
-    env_logger::builder().filter(None, log::LevelFilter::Info).init();
+async fn main() -> Result<()> {
+    env_logger::builder()
+        .filter(None, log::LevelFilter::Info)
+        .init();
 
     let version = format!(
         "v{}\ncommit: {}\nbuildtime: {}",
@@ -31,29 +34,7 @@ async fn main() {
     );
     info!("Verdictd info: {}", version);
 
-    match resources::opa::default() {
-        Ok(_) => {}
-        Err(e) => {
-            error!("opa: {}", e);
-            return;
-        }
-    }
-
-    match gpg::default() {
-        Ok(_) => {}
-        Err(e) => {
-            error!("gpg: {}", e);
-            return;
-        }
-    }
-
-    match image::default() {
-        Ok(_) => {}
-        Err(e) => {
-            error!("image: {}", e);
-            return;
-        }
-    }
+    resources::opa::default().context("opa")?;
 
     let matches = App::new("verdictd")
         .version(version.as_str())
@@ -107,7 +88,7 @@ async fn main() {
                 .value_name("client_api")
                 .help("Specify the client API's listen addr")
                 .takes_value(true),
-        )        
+        )
         .get_matches();
 
     let sockaddr = match matches.is_present("listen") {
@@ -132,6 +113,7 @@ async fn main() {
     };
 
     let mutual = matches.is_present("mutual");
+
     std::thread::spawn(move || {
         info!("Listen addr: {}", sockaddr);
         attestation_agent::rats_tls::server(
@@ -139,15 +121,16 @@ async fn main() {
         );
     });
 
-     // Launch client API gRPC server
-     let client_api = match matches.is_present("client_api") {
+    // Launch client API gRPC server
+    let client_api = match matches.is_present("client_api") {
         true => matches.value_of("client_api").unwrap().to_string(),
         false => "[::1]:60000".to_string(),
     };
     info!("Listen client API server addr: {}", client_api);
-    let client_api_server = client_api::api::server(&client_api);
-    match client_api_server.await {
-        Ok(_) => info!("Success"),
-        Err(e) => info!("Launch client API service failed with: {}", e.to_string()),
-    }
+    client_api::api::server(&client_api)
+        .await
+        .context("Launch client API service failed")?;
+
+    info!("Success");
+    Ok(())
 }

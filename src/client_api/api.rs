@@ -1,29 +1,38 @@
-use crate::client_api;
+use crate::client_api::{key_manager::keyManagerService, opa::opaService};
+use crate::resource::Resources;
+use crate::resources::directory_keymanager::KeyManager;
 use tonic::transport::Server;
 
-use clientApi::gpg_service_server::GpgServiceServer;
-use clientApi::image_service_server::ImageServiceServer;
 use clientApi::key_manager_service_server::KeyManagerServiceServer;
 use clientApi::opa_service_server::OpaServiceServer;
-use client_api::key_provider::keyProvider::key_provider_service_server::KeyProviderServiceServer;
+use clientApi::resource_service_server::ResourceServiceServer;
+
+use anyhow::*;
+
+use super::resource::ResourceManager;
+use std::sync::{Arc, Mutex};
 
 pub mod clientApi {
     tonic::include_proto!("clientapi");
 }
 
-pub async fn server(addr: &str) -> Result<(), Box<dyn std::error::Error>> {
+lazy_static::lazy_static! {
+    pub static ref RESOURCE_MANAGER: Arc<Mutex<Resources>> = Arc::new(Mutex::new(Resources::default().expect("resource manager init")));
+    pub static ref KEY_MANAGER: Arc<Mutex<KeyManager>> = Arc::new(Mutex::new(KeyManager::default().expect("key manager init")));
+    // pub static ref OPA: Arc<ResourceManager> = Arc::new(ResourceManager::default().expect("resource manager init"));
+}
+
+pub async fn server(addr: &str) -> Result<()> {
     let addr = addr.parse()?;
-    let gpg_service = client_api::gpg::gpgService::default();
-    let image_service = client_api::image::imageService::default();
-    let key_manager_service = client_api::key_manager::keyManagerService::default();
-    let key_provider_service = client_api::key_provider::keyProviderService::default();
-    let opa_service = client_api::opa::opaService::default();
+    let opa_service = opaService::default();
 
     Server::builder()
-        .add_service(GpgServiceServer::new(gpg_service))
-        .add_service(ImageServiceServer::new(image_service))
-        .add_service(KeyManagerServiceServer::new(key_manager_service))
-        .add_service(KeyProviderServiceServer::new(key_provider_service))
+        .add_service(ResourceServiceServer::new(ResourceManager::new(
+            RESOURCE_MANAGER.clone(),
+        )))
+        .add_service(KeyManagerServiceServer::new(keyManagerService::new(
+            KEY_MANAGER.clone(),
+        )))
         .add_service(OpaServiceServer::new(opa_service))
         .serve(addr)
         .await?;
