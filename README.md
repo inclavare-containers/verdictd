@@ -71,7 +71,9 @@ These options all exist default values. If user execute `./bin/verdictd` directl
 verdictd --listen 127.0.0.1:1234 --client-api [::1]:60000
 ```
 
-# Generate encrypted container image
+# Generate encrypted container image (Deprecated)
+
+> **Warning** : Please use [CoCo KeyProvider](https://github.com/confidential-containers/attestation-agent/pull/143) to generate encrypted container images
 
 Verdictd supports key provider protocol's `WrapKey` request by the address designated by `--client-api` option. 
 So user can use Verdictd and skopeo to generate encrypted container image with the following steps.
@@ -103,3 +105,9 @@ export OCICRYPT_KEYPROVIDER_CONFIG=/etc/containerd/ocicrypt/ocicrypt_keyprovider
 # generate encrypted image
 skopeo copy --insecure-policy --encryption-key provider:attestation-agent:84688df7-2c0c-40fa-956b-29d8e74d16c0 oci:alpine oci:alpine-encrypted
 ```
+
+# Resource Storage
+
+Now the resources are stored in by default `/opt/verdictd/resources` and keys are in `/opt/verdictd/keys`. Both of them are indexed in a three-level directory structure. For example
+- A resource from `GetResource` request with `kbs:///default/policy/1` is mapped to file `/opt/verdictd/resources/default/policy/1`
+- A decryption key from `GetKey` request with `kbs:///default/key/1` is mapped to file `/opt/verdictd/keys/default/policy/1`
