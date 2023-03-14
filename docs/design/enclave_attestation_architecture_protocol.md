@@ -96,8 +96,8 @@ Fetch `kids`'s kid corresponding keys.
 {
     "command": "Get KEK",
     "kids" : [
-        "32sdsd",
-        "ryjhu66",
+        "<resource_path1>",
+        "<resource_path2>",
     ]
 }
 ```
@@ -105,6 +105,8 @@ Fetch `kids`'s kid corresponding keys.
 ## Response
 
 It will respond to these keys if it's executed successfully, or it will respond to the error information.
+
+Here a `resource_path` is the `<repo>/<type>/<tag>` field of a KBS Resource URI
 
 ### Success
 
@@ -129,7 +131,7 @@ It will respond to these keys if it's executed successfully, or it will respond 
 }
 ```
 
-# Get Policy
+# Get Resources
 
 Get the `policy.json` file which is relied on by container image signature's verification.
 
@@ -137,80 +139,20 @@ Get the `policy.json` file which is relied on by container image signature's ver
 
 ```JSON
 {
-    "command": "Get Policy",
-    "optional":{} 
+    "command": "Get Resource",
+    "optional":{
+        "resource_path": "<resource_path>"
+    } 
 }
 ```
 
 ### Response
 
-It will respond to the `policy.json` file if it's executed successfully.
+It will respond the `<resource_path>` file if it's executed successfully. Here a `resource_path` is the `<repo>/<type>/<tag>` field of a KBS Resource URI
 
 ### Success
 
 Directly return the base64 encoded policy file.
-### Failed
-
-Send base64 encoded error json string:
-
-```json
-{
-    "status": "Fail",
-    "error": ""
-}
-```
-
-# Get Sigstore
-
-Get the `sigstore.yaml` file which is relied on by container image signature's verification.
-
-## Request
-
-```JSON
-{
-    "command": "Get Sigstore Config",
-    "optional":{}
-}
-```
-
-## Response
-
-It will respond to the `sigstore.yaml` file if it's executed successfully.
-
-### Success
-
-Directly return the base64 encoded sigstore config file.
-### Failed
-
-Send base64 encoded error json string:
-
-```json
-{
-    "status": "Fail",
-    "error": ""
-}
-```
-
-# Get GPG
-
-Get the GPG keyring file which is relied on by container image signature's verification.
-
-## Request
-
-```JSON
-{
-    "command": "Get GPG Keyring",
-    "optional":{}
-}
-```
-
-## Response
-
-It will respond to the base64 formated GPG keyring file.
-
-### Success
-
-Directly return the base64 encoded GPG key ring file.
 ### Failed
 
 Send base64 encoded error json string:
@@ -235,7 +177,7 @@ Get the information of the resource which will be requested.
 }
 ```
 
-The `"name"` can be `"Policy", "Sigstore Config", "GPG Keyring"`.
+The `"name"` should be a `<resource_path>`.
 
 ## Response
 
