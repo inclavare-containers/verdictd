@@ -6,7 +6,7 @@ jobs:
   basic_complication_check:
     # Run all steps in the compilation testing containers
 
-    container: runetest/compilation-testing:ubuntu18.04
+    container: runetest/compilation-testing:ubuntu20.04
 
     # Use GitHub-hosted runner Ubuntu 18.04
     runs-on: ubuntu-18.04
@@ -23,6 +23,11 @@ jobs:
       - name: Preparations
         run:
           echo "CPU_NUM=$(nproc --all)" >> $GITHUB_ENV;
+
+      - name: Install Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: '^1.13.1'
 
       - name: Compile "verdictd"
         run: |
