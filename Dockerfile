@@ -32,7 +32,7 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 RUN wget https://download.01.org/intel-sgx/sgx-dcap/1.15/linux/distro/Anolis86/sgx_rpm_local_repo.tgz; \
 tar xzvf sgx_rpm_local_repo.tgz; \
 yum-config-manager --add-repo file://$(realpath sgx_rpm_local_repo); \
-yum install -y --setopt=install_weak_deps=False --nogpgcheck libtdx-attest libsgx-dcap-default-qpl libsgx-dcap-quote-verify
+yum install -y --setopt=install_weak_deps=False --nogpgcheck libsgx-urts libtdx-attest libsgx-dcap-default-qpl libsgx-dcap-quote-verify
 
 # Install rats-tls
 RUN rpm -ivh /usr/src/verdictd/deps/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm
