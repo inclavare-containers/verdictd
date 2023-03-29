@@ -202,6 +202,15 @@ fn bindgen_test_layout_max_align_t() {
         )
     );
 }
+#[doc = " Claims struct used for claims parameters."]
+pub type claim_t = claim;
+#[repr(C, packed)]
+#[derive(Debug, Copy, Clone)]
+pub struct claim {
+    pub name: *mut ::std::os::raw::c_char,
+    pub value: *mut u8,
+    pub value_size: usize,
+}
 pub const RATS_TLS_LOG_LEVEL_DEBUG: rats_tls_log_level_t = 0;
 pub const RATS_TLS_LOG_LEVEL_INFO: rats_tls_log_level_t = 1;
 pub const RATS_TLS_LOG_LEVEL_WARN: rats_tls_log_level_t = 2;
@@ -809,6 +818,8 @@ pub type enclave_evidence_type_t = ::std::os::raw::c_uint;
 #[derive(Copy, Clone)]
 pub struct rtls_evidence {
     pub type_: enclave_evidence_type_t,
+    pub custom_claims: *mut claim_t,
+    pub custom_claims_length: usize,
     pub ehd: ehd_t,
     pub quote_size: ::std::os::raw::c_int,
     pub quote: *mut ::std::os::raw::c_char,
