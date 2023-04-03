@@ -3,9 +3,10 @@ FROM registry.cn-hangzhou.aliyuncs.com/alinux/alinux3 as builder
 WORKDIR /usr/src/verdictd
 
 ENV RATS_TLS_COMMIT 5de6fc3
-ENV VERDICTD_COMMIT 6579237
+ENV VERDICTD_COMMIT 822ed01
 
 COPY . .
+RUN git reset --hard ${VERDICTD_COMMIT}
 
 # Install Build Dependencies
 RUN yum install -y yum-utils
@@ -42,8 +43,7 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y;
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Build and Install verdictd
-RUN git reset --hard ${VERDICTD_COMMIT}; \
-make verdictd && make install
+RUN make install
 
 
 FROM registry.cn-hangzhou.aliyuncs.com/alinux/alinux3
