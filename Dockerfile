@@ -39,7 +39,7 @@ RUN rpm -ivh /usr/src/verdictd/deps/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm
 
 # Build and Install verdictd
 RUN git reset --hard ${VERDICTD_COMMIT}; \
-make && make install
+make verdictd && make install
 
 
 FROM registry.cn-hangzhou.aliyuncs.com/alinux/alinux3
