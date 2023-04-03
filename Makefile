@@ -18,9 +18,8 @@ Eaa_Name := eaa
 Verdict_Name := verdict
 Verdictd_Name := verdictd
 Opa_Name := libopa.so
-RatsTls_Src_Dir := $(CUR_DIR)/rats-tls
 
-.PHONY: all build_rats_tls clean distclean
+.PHONY: all clean distclean
 all: $(Eaa_Name)
 
 ######## App Objects ########
@@ -28,16 +27,9 @@ all: $(Eaa_Name)
 opa:
 	@cd "$(Opa_Lib_Path)" && go build -o $(Opa_Name) -buildmode=c-shared $(Opa_Src_Files)
 
-build_rats_tls:
-	if [ ! -d "$(RatsTls_Src_Dir)" ]; then git clone https://github.com/inclavare-containers/rats-tls.git; fi
-	cd "$(RatsTls_Src_Dir)" && cmake -DBUILD_SAMPLES=on -H. -Bbuild && make -C build install
-
-$(Eaa_Name): opa build_rats_tls
+$(Eaa_Name): opa
 	RUSTFLAGS="-C link-args=-Wl,-rpath=/usr/local/lib/rats-tls:/usr/local/lib:$(Opa_Lib_Path),--enable-new-dtags" cargo build $(App_Rust_Flags)
 	@echo "Cargo  =>  $@"
-
-verdictd: opa
-	RUSTFLAGS="-C link-args=-Wl,-rpath=/usr/local/lib/rats-tls:/usr/local/lib:$(Opa_Lib_Path),--enable-new-dtags" cargo build $(App_Rust_Flags)
 
 .PHONY: install uninstall clean
 
@@ -59,11 +51,9 @@ package:
 	$(MAKE) -C dist package VERDICTD_VERSION="$(VERDICTD_VERSION)" VERDICTD_MAINTAINER="$(VERDICTD_MAINTAINER)"
 
 clean:
-	cd "$(RatsTls_Src_Dir)" && make -C build clean && make -C build uninstall
 	cargo clean && rm -f Cargo.lock
 	@rm -rf $(Opa_Lib_Path)/libopa.*
 	@rm -f dist/rpm/verdictd.spec dist/deb/debian/changelog
 
 distclean:
 	$(MAKE) clean
-	@rm -fr "$(RatsTls_Src_Dir)"

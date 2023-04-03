@@ -3,7 +3,7 @@ FROM registry.cn-hangzhou.aliyuncs.com/alinux/alinux3 as builder
 WORKDIR /usr/src/verdictd
 
 ENV RATS_TLS_COMMIT 5de6fc3
-ENV VERDICTD_COMMIT 1d632be
+ENV VERDICTD_COMMIT 6579237
 
 COPY . .
 
@@ -37,6 +37,10 @@ yum install -y --setopt=install_weak_deps=False --nogpgcheck libsgx-urts libtdx-
 # Install rats-tls
 RUN rpm -ivh /usr/src/verdictd/deps/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm
 
+# Install Rust toolchain
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y;
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 # Build and Install verdictd
 RUN git reset --hard ${VERDICTD_COMMIT}; \
 make verdictd && make install
@@ -51,7 +55,7 @@ RUN yum install -y clang wget tar
 RUN wget https://download.01.org/intel-sgx/sgx-dcap/1.15/linux/distro/Anolis86/sgx_rpm_local_repo.tgz; \
 tar xzvf sgx_rpm_local_repo.tgz; \
 yum-config-manager --add-repo file://$(realpath sgx_rpm_local_repo); \
-yum install -y --setopt=install_weak_deps=False --nogpgcheck libtdx-attest libsgx-dcap-default-qpl libsgx-dcap-quote-verify
+yum install -y --setopt=install_weak_deps=False --nogpgcheck libsgx-urts libtdx-attest libsgx-dcap-default-qpl libsgx-dcap-quote-verify
 
 # Install rats-tls
 COPY --from=builder /usr/src/verdictd/deps/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm /usr/src/rats-tls-tdx-0.6.4-1.al8.x86_64.rpm
