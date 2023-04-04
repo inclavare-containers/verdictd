@@ -1,4 +1,4 @@
-FROM rust:1.67-slim
+FROM rust:1.67-slim as builder
 
 WORKDIR /usr/src
 
@@ -8,7 +8,7 @@ ENV VERDICTD_COMMIT 1d632be
 ENV ALIYUN_PCCS_URL "https://sgx-dcap-server.cn-beijing.aliyuncs.com/sgx/certification/v4/"
 
 # Install Build Dependencies
-RUN apt-get install -y \
+RUN apt-get update && apt install -y \
 clang \
 cmake \
 curl \
@@ -46,11 +46,31 @@ RUN sed -i "s|\"pccs_url\":.*$|\"pccs_url\":\"$ALIYUN_PCCS_URL\",|" /etc/sgx_def
 RUN git clone https://github.com/inclavare-containers/rats-tls
 RUN cd rats-tls; \
 git reset --hard ${RATS_TLS_COMMIT}; \
-cmake -DRATS_TLS_BUILD_MODE="tdx" -DBUILD_SAMPLES=on -H. -Bbuild; \
+cmake -DBUILD_SAMPLES=on -H. -Bbuild; \
 make -C build install
 
 # Build and Install verdictd
-RUN git clone https://github.com/inclavare-containers/verdictd
-RUN cd verdictd; \
-git reset --hard ${VERDICTD_COMMIT}; \
-make && make install
+COPY . .
+
+RUN make && make install
+
+FROM ubuntu:20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /usr/src
+
+COPY --from=builder /usr/local/bin/verdictd /usr/local/bin/verdictd
+COPY --from=builder /usr/local/lib/libopa.so /usr/local/lib/libopa.so
+COPY --from=builder /usr/local/bin/verdict /usr/local/bin/verdict
+COPY --from=builder /usr/local/lib/rats-tls /usr/local/lib/rats-tls
+RUN apt-get update && apt install -y curl gnupg git cmake && \
+    curl -L https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key | apt-key add - && \
+    echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu focal main' | tee /etc/apt/sources.list.d/intel-sgx.list   && \
+    apt-get update && \
+    apt-get install -y \
+    libsgx-dcap-ql-dev \
+    libsgx-dcap-default-qpl \
+    libsgx-dcap-quote-verify \
+    libsgx-dcap-quote-verify-dev && \
+    rm -rf /var/lib/apt/lists/*
