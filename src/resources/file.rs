@@ -76,3 +76,45 @@ pub fn size(name: &str) -> Result<usize, String> {
         .map_err(|e| e.to_string())
         .and_then(|metadata| Ok(metadata.len() as usize))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn test_file() {
+        let tmp_dir = std::env::temp_dir();
+        let mut tmp_file = tmp_dir.to_path_buf();
+        tmp_file.push("temp_file.txt");
+
+        let content = "Hello, world!";
+        let test_file_name = tmp_file.as_path().to_str().unwrap();
+
+        // Test write function
+        let result = write(test_file_name, content);
+        assert!(result.is_ok());
+
+        // Test size function
+        let result = size(test_file_name);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), content.len());
+
+        // Test export_base64 function
+        let result = export_base64(test_file_name);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), base64::encode(content));
+
+        // Test export_raw function
+        let result = export_raw(test_file_name);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), content.as_bytes().to_vec());
+
+        // Test export_string function
+        let result = export_string(test_file_name);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), content);
+
+        std::fs::remove_file(tmp_file.as_path()).unwrap();
+    }
+}

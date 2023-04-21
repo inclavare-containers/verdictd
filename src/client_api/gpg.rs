@@ -123,3 +123,22 @@ impl GpgService for gpgService {
         Ok(Response::new(res))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[tokio::test]
+    async fn test_export_gpg_keyring() {
+        let service = gpgService {};
+
+        // Export GPG keyring
+        let request = ExportGpgKeyringRequest {};
+        let response = service
+            .export_gpg_keyring(Request::new(request))
+            .await
+            .unwrap();
+        assert_eq!(response.get_ref().status, b"OK");
+    }
+}

@@ -24,3 +24,27 @@ pub fn set_key(kid: &String, key: &[u8]) -> std::io::Result<()> {
     fs::write(path, key).expect("Unable to write file");
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn test_set_get_key() {
+        let kid = String::from("test_key");
+        let key_content = b"test_key_content".to_vec();
+        let path = VERDICTD_KEY_PATH.to_string() + &kid;
+        fs::create_dir_all(&VERDICTD_KEY_PATH).expect("Unable to create directory");
+
+        let set_res = set_key(&kid, &key_content);
+        assert!(set_res.is_ok());
+
+        let key = get_key(&kid);
+        assert_eq!(key.unwrap(), key_content);
+
+        // Cleanup
+        let res = fs::remove_file(&path);
+        assert!(res.is_ok());
+    }
+}

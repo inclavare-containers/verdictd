@@ -53,3 +53,72 @@ pub struct KeyUnwrapOutput {
 pub struct KeyUnwrapResults {
     pub optsdata: Vec<u8>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_key_provider_input_serde() {
+        let input = KeyProviderInput {
+            op: "wrapKey".to_owned(),
+            keywrapparams: KeyWrapParams {
+                ec: None,
+                optsdata: Some("test".to_owned()),
+            },
+            keyunwrapparams: KeyUnwrapParams {
+                dc: None,
+                annotation: None,
+            },
+        };
+
+        let json = serde_json::to_string(&input).unwrap();
+        let expected_json = r#"{"op":"wrapKey","keywrapparams":{"ec":null,"optsdata":"test"},"keyunwrapparams":{"dc":null,"annotation":null}}"#;
+        assert_eq!(json, expected_json);
+
+        let deserialized: KeyProviderInput = serde_json::from_str(expected_json).unwrap();
+        assert_eq!(deserialized.op, input.op);
+        assert_eq!(
+            deserialized.keywrapparams.optsdata.unwrap(),
+            input.keywrapparams.optsdata.unwrap()
+        );
+    }
+
+    #[test]
+    fn test_key_wrap_output_serde() {
+        let output = KeyWrapOutput {
+            keywrapresults: KeyWrapResults {
+                annotation: vec![1, 2, 3],
+            },
+        };
+
+        let json = serde_json::to_string(&output).unwrap();
+        let expected_json = r#"{"keywrapresults":{"annotation":[1,2,3]}}"#;
+        assert_eq!(json, expected_json);
+
+        let deserialized: KeyWrapOutput = serde_json::from_str(expected_json).unwrap();
+        assert_eq!(
+            deserialized.keywrapresults.annotation,
+            output.keywrapresults.annotation
+        );
+    }
+
+    #[test]
+    fn test_key_unwrap_output_serde() {
+        let output = KeyUnwrapOutput {
+            keyunwrapresults: KeyUnwrapResults {
+                optsdata: vec![4, 5, 6],
+            },
+        };
+
+        let json = serde_json::to_string(&output).unwrap();
+        let expected_json = r#"{"keyunwrapresults":{"optsdata":[4,5,6]}}"#;
+        assert_eq!(json, expected_json);
+
+        let deserialized: KeyUnwrapOutput = serde_json::from_str(expected_json).unwrap();
+        assert_eq!(
+            deserialized.keyunwrapresults.optsdata,
+            output.keyunwrapresults.optsdata
+        );
+    }
+}

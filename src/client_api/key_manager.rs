@@ -73,3 +73,18 @@ impl KeyManagerService for keyManagerService {
         Ok(Response::new(res))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_get_key_not_exist() {
+        let service = keyManagerService {};
+        let request = GetKeyRequest {
+            uuid: b"notexist".to_vec(),
+        };
+        let response = service.get_key(Request::new(request)).await.unwrap();
+        assert_eq!(response.get_ref().status, b"key is not exist");
+    }
+}

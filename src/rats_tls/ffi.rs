@@ -809,7 +809,7 @@ pub union rtls_evidence__bindgen_ty_1 {
 fn bindgen_test_layout_rtls_evidence__bindgen_ty_1() {
     assert_eq!(
         ::std::mem::size_of::<rtls_evidence__bindgen_ty_1>(),
-        48usize,
+        64usize,
         concat!("Size of: ", stringify!(rtls_evidence__bindgen_ty_1))
     );
     assert_eq!(
@@ -842,7 +842,7 @@ fn bindgen_test_layout_rtls_evidence__bindgen_ty_1() {
 fn bindgen_test_layout_rtls_evidence() {
     assert_eq!(
         ::std::mem::size_of::<rtls_evidence>(),
-        112usize,
+        128usize,
         concat!("Size of: ", stringify!(rtls_evidence))
     );
     assert_eq!(

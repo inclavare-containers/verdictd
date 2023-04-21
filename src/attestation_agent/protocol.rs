@@ -214,3 +214,90 @@ pub fn handle(request: &[u8]) -> Result<(String, u8), String> {
 
     response
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_handle_version() {
+        let result = handle_version();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_handle_decrypt() {
+        let request = serde_json::json!({
+            "blobs": [
+                {
+                    "algorithm": "AES",
+                    "key_length": 256,
+                    "encrypted_data": "encrypted_data",
+                    "iv": "iv",
+                    "kid": "kid"
+                }
+            ]
+        });
+        let result = handle_decrypt(&request);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_handle_getKek() {
+        let request = serde_json::json!({
+            "kids": [
+                "kid"
+            ]
+        });
+        let result = handle_getKek(&request);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_handle_echo() {
+        let request = serde_json::json!({
+            "data": "data"
+        });
+        let result = handle_echo(&request);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_handle_get_policy() {
+        let result = handle_get_policy();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_handle_get_sigstore_config() {
+        let result = handle_get_sigstore_config();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_handle_get_gpg_keyring() {
+        let result = handle_get_gpg_keyring();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_handle_get_resource_info() {
+        let request = serde_json::json!({
+            "name": "Policy"
+        });
+        let result = handle_get_resource_info(&request);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_error_message() {
+        let result = error_message(String::from("error"));
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_error_message2() {
+        let result = error_message2(String::from("error"));
+        assert!(result.is_ok());
+    }
+}
