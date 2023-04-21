@@ -2,17 +2,17 @@ use std::fs;
 use std::io::prelude::*;
 
 use crate::client_api::image_service_client::ImageServiceClient;
-use crate::client_api::{ExportImageSigstoreRequest, ExportImageSigstoreResponse};
-use crate::client_api::{SetImageSigstoreRequest, SetImageSigstoreResponse};
 use crate::client_api::{ExportImagePolicyRequest, ExportImagePolicyResponse};
+use crate::client_api::{ExportImageSigstoreRequest, ExportImageSigstoreResponse};
 use crate::client_api::{SetImagePolicyRequest, SetImagePolicyResponse};
+use crate::client_api::{SetImageSigstoreRequest, SetImageSigstoreResponse};
 
 pub async fn export_image_sigstore_cmd(path: String, addr: &str) {
     let request = ExportImageSigstoreRequest {};
 
     let mut client = ImageServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     let response: ExportImageSigstoreResponse = client
         .export_image_sigstore(request)
@@ -47,8 +47,8 @@ pub async fn set_image_sigstore_cmd(vals: Vec<&str>, addr: &str) {
     };
 
     let mut client = ImageServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     let response: SetImageSigstoreResponse = client
         .set_image_sigstore(request)
@@ -65,8 +65,8 @@ pub async fn export_image_policy_cmd(path: String, addr: &str) {
     let request = ExportImagePolicyRequest {};
 
     let mut client = ImageServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     let response: ExportImagePolicyResponse = client
         .export_image_policy(request)
@@ -101,14 +101,11 @@ pub async fn set_image_policy_cmd(vals: Vec<&str>, addr: &str) {
     };
 
     let mut client = ImageServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
-
-    let response: SetImagePolicyResponse = client
-        .set_image_policy(request)
         .await
-        .unwrap()
-        .into_inner();
+        .unwrap();
+
+    let response: SetImagePolicyResponse =
+        client.set_image_policy(request).await.unwrap().into_inner();
     info!(
         "set_image_policy status is: {:?}",
         String::from_utf8(response.status).unwrap()

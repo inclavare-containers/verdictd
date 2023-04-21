@@ -1,14 +1,14 @@
-use tonic::{Request, Response, Status};
 use crate::client_api::api;
 use crate::resources::gpg;
 use std::io::Write;
 use std::process::{Command, Stdio};
+use tonic::{Request, Response, Status};
 
 use api::clientApi::gpg_service_server::GpgService;
-use api::clientApi::{ListGpgKeysRequest, ListGpgKeysResponse};
-use api::clientApi::{ImportGpgKeyRequest, ImportGpgKeyResponse};
 use api::clientApi::{DeleteGpgKeyRequest, DeleteGpgKeyResponse};
 use api::clientApi::{ExportGpgKeyringRequest, ExportGpgKeyringResponse};
+use api::clientApi::{ImportGpgKeyRequest, ImportGpgKeyResponse};
+use api::clientApi::{ListGpgKeysRequest, ListGpgKeysResponse};
 
 #[derive(Debug, Default)]
 pub struct gpgService {}
@@ -19,8 +19,7 @@ impl GpgService for gpgService {
         &self,
         _request: Request<ListGpgKeysRequest>,
     ) -> Result<Response<ListGpgKeysResponse>, Status> {
-        let output = 
-            Command::new("gpg")
+        let output = Command::new("gpg")
             .arg("--no-default-keyring")
             .arg("--keyring=".to_owned() + gpg::GPG_KEYRING)
             .arg("--list-keys")
@@ -30,7 +29,7 @@ impl GpgService for gpgService {
         info!("status: {}", output.status);
 
         let res = ListGpgKeysResponse {
-            keys: output.stdout.to_vec()
+            keys: output.stdout.to_vec(),
         };
 
         Ok(Response::new(res))
@@ -52,16 +51,18 @@ impl GpgService for gpgService {
             .arg("--import")
             .spawn()
             .expect("Failed to spawn child process");
-        
+
         let mut stdin = child.stdin.take().expect("Failed to open stdin");
         std::thread::spawn(move || {
-            stdin.write_all(key.as_bytes()).expect("Failed to write to stdin");
+            stdin
+                .write_all(key.as_bytes())
+                .expect("Failed to write to stdin");
         });
-        
+
         let output = child.wait_with_output().expect("Failed to read stdout");
 
         let res = ImportGpgKeyResponse {
-            status: output.stderr.to_vec()
+            status: output.stderr.to_vec(),
         };
 
         Ok(Response::new(res))
@@ -74,8 +75,7 @@ impl GpgService for gpgService {
         let request: DeleteGpgKeyRequest = request.into_inner();
         let keyid = std::str::from_utf8(&request.keyid).unwrap();
 
-        let output = 
-            Command::new("gpg")
+        let output = Command::new("gpg")
             .arg("--batch")
             .arg("--yes")
             .arg("--no-default-keyring")
@@ -89,11 +89,11 @@ impl GpgService for gpgService {
 
         let res = if output.status.success() {
             DeleteGpgKeyResponse {
-                status: "Delete key successfully".as_bytes().to_vec()
+                status: "Delete key successfully".as_bytes().to_vec(),
             }
         } else {
             DeleteGpgKeyResponse {
-                status: output.stderr.to_vec()
+                status: output.stderr.to_vec(),
             }
         };
 
@@ -118,7 +118,7 @@ impl GpgService for gpgService {
                     status: e.into_bytes(),
                     content: "".as_bytes().to_vec(),
                 }
-            });   
+            });
 
         Ok(Response::new(res))
     }

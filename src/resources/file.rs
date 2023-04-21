@@ -7,7 +7,8 @@ pub fn export_string(name: &str) -> Result<String, String> {
         .map_err(|e| e.to_string())
         .and_then(|mut file| {
             let mut contents = String::new();
-            let res = file.read_to_string(&mut contents)
+            let res = file
+                .read_to_string(&mut contents)
                 .map_err(|e| e.to_string())
                 .and_then(|_| Ok(contents));
             res
@@ -19,7 +20,8 @@ pub fn export_raw(name: &str) -> Result<Vec<u8>, String> {
         .map_err(|e| e.to_string())
         .and_then(|mut file| {
             let mut contents = Vec::new();
-            let res = file.read_to_end(&mut contents)
+            let res = file
+                .read_to_end(&mut contents)
                 .map_err(|e| e.to_string())
                 .and_then(|_| Ok(contents));
             res
@@ -29,9 +31,7 @@ pub fn export_raw(name: &str) -> Result<Vec<u8>, String> {
 pub fn export_base64(name: &str) -> Result<String, String> {
     export_raw(name)
         .map_err(|e| e.to_string())
-        .and_then(|contents| {
-            Ok(base64::encode(contents))
-        })
+        .and_then(|contents| Ok(base64::encode(contents)))
 }
 
 pub fn write(src: &str, content: &str) -> Result<(), String> {
@@ -40,7 +40,8 @@ pub fn write(src: &str, content: &str) -> Result<(), String> {
     fs::File::create(src)
         .map_err(|e| e.to_string())
         .and_then(|mut file| {
-            let res = file.write_all(content.as_bytes())
+            let res = file
+                .write_all(content.as_bytes())
                 .map_err(|e| e.to_string())
                 .and_then(|_| Ok(()));
             res
