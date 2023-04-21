@@ -256,10 +256,7 @@ fn bindgen_test_layout_rats_tls_conf_t__bindgen_ty_1() {
     assert_eq!(
         ::std::mem::align_of::<rats_tls_conf_t__bindgen_ty_1>(),
         1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(rats_tls_conf_t__bindgen_ty_1)
-        )
+        concat!("Alignment of ", stringify!(rats_tls_conf_t__bindgen_ty_1))
     );
     assert_eq!(
         unsafe {
@@ -287,8 +284,7 @@ fn bindgen_test_layout_rats_tls_conf_t__bindgen_ty_1() {
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<rats_tls_conf_t__bindgen_ty_1>())).linkable as *const _
-                as usize
+            &(*(::std::ptr::null::<rats_tls_conf_t__bindgen_ty_1>())).linkable as *const _ as usize
         },
         17usize,
         concat!(
@@ -316,10 +312,7 @@ fn bindgen_test_layout_rats_tls_conf_t__bindgen_ty_2() {
     assert_eq!(
         ::std::mem::align_of::<rats_tls_conf_t__bindgen_ty_2>(),
         4usize,
-        concat!(
-            "Alignment of ",
-            stringify!(rats_tls_conf_t__bindgen_ty_2)
-        )
+        concat!("Alignment of ", stringify!(rats_tls_conf_t__bindgen_ty_2))
     );
     assert_eq!(
         unsafe {
@@ -335,8 +328,7 @@ fn bindgen_test_layout_rats_tls_conf_t__bindgen_ty_2() {
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<rats_tls_conf_t__bindgen_ty_2>())).cert_type as *const _
-                as usize
+            &(*(::std::ptr::null::<rats_tls_conf_t__bindgen_ty_2>())).cert_type as *const _ as usize
         },
         1usize,
         concat!(
@@ -348,8 +340,8 @@ fn bindgen_test_layout_rats_tls_conf_t__bindgen_ty_2() {
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<rats_tls_conf_t__bindgen_ty_2>())).verification_type
-                as *const _ as usize
+            &(*(::std::ptr::null::<rats_tls_conf_t__bindgen_ty_2>())).verification_type as *const _
+                as usize
         },
         4usize,
         concat!(
@@ -418,9 +410,7 @@ fn bindgen_test_layout_rats_tls_conf_t() {
         )
     );
     assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rats_tls_conf_t>())).attester_type as *const _ as usize
-        },
+        unsafe { &(*(::std::ptr::null::<rats_tls_conf_t>())).attester_type as *const _ as usize },
         52usize,
         concat!(
             "Offset of field: ",
@@ -430,9 +420,7 @@ fn bindgen_test_layout_rats_tls_conf_t() {
         )
     );
     assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rats_tls_conf_t>())).verifier_type as *const _ as usize
-        },
+        unsafe { &(*(::std::ptr::null::<rats_tls_conf_t>())).verifier_type as *const _ as usize },
         84usize,
         concat!(
             "Offset of field: ",
@@ -472,9 +460,7 @@ fn bindgen_test_layout_rats_tls_conf_t() {
         )
     );
     assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rats_tls_conf_t>())).quote_sgx_epid as *const _ as usize
-        },
+        unsafe { &(*(::std::ptr::null::<rats_tls_conf_t>())).quote_sgx_epid as *const _ as usize },
         160usize,
         concat!(
             "Offset of field: ",
@@ -484,9 +470,7 @@ fn bindgen_test_layout_rats_tls_conf_t() {
         )
     );
     assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<rats_tls_conf_t>())).quote_sgx_ecdsa as *const _ as usize
-        },
+        unsafe { &(*(::std::ptr::null::<rats_tls_conf_t>())).quote_sgx_ecdsa as *const _ as usize },
         180usize,
         concat!(
             "Offset of field: ",
@@ -941,7 +925,5 @@ extern "C" {
         buf_size: *mut size_t,
     ) -> rats_tls_err_t;
 
-    pub fn rats_tls_cleanup(
-        handle: *mut rats_tls_handle
-    ) -> rats_tls_err_t;
+    pub fn rats_tls_cleanup(handle: *mut rats_tls_handle) -> rats_tls_err_t;
 }

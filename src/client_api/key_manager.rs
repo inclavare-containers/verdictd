@@ -1,14 +1,14 @@
-use tonic::{Request, Response, Status};
-use rand::*;
-use uuid::Uuid;
-use base64;
 use crate::client_api::api;
 use crate::resources::directory_key_manager;
+use base64;
+use rand::*;
+use tonic::{Request, Response, Status};
+use uuid::Uuid;
 
 use api::clientApi::key_manager_service_server::KeyManagerService;
 use api::clientApi::{CreateKeyRequest, CreateKeyResponse};
-use api::clientApi::{GetKeyRequest, GetKeyResponse};
 use api::clientApi::{DeleteKeyRequest, DeleteKeyResponse};
+use api::clientApi::{GetKeyRequest, GetKeyResponse};
 
 #[derive(Debug, Default)]
 pub struct keyManagerService {}
@@ -31,12 +31,10 @@ impl KeyManagerService for keyManagerService {
                 };
                 Ok(res)
             })
-            .unwrap_or_else(|_| {
-                CreateKeyResponse {
-                    status: "Greate key failed".as_bytes().to_vec(),
-                    uuid: "".as_bytes().to_vec(),
-                }
-            });           
+            .unwrap_or_else(|_| CreateKeyResponse {
+                status: "Greate key failed".as_bytes().to_vec(),
+                uuid: "".as_bytes().to_vec(),
+            });
 
         Ok(Response::new(res))
     }
@@ -57,14 +55,12 @@ impl KeyManagerService for keyManagerService {
                 };
                 Ok(res)
             })
-            .unwrap_or_else(|_| {
-                GetKeyResponse {
-                    status: "key is not exist".as_bytes().to_vec(),
-                    key: "".as_bytes().to_vec(),
-                }
+            .unwrap_or_else(|_| GetKeyResponse {
+                status: "key is not exist".as_bytes().to_vec(),
+                key: "".as_bytes().to_vec(),
             });
 
-        Ok(Response::new(res))   
+        Ok(Response::new(res))
     }
 
     async fn delete_key(
@@ -74,6 +70,6 @@ impl KeyManagerService for keyManagerService {
         let res = DeleteKeyResponse {
             status: "Not implemented".as_bytes().to_vec(),
         };
-        Ok(Response::new(res))   
+        Ok(Response::new(res))
     }
 }

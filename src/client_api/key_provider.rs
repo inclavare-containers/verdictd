@@ -1,11 +1,11 @@
+use crate::client_api::annotation;
+use crate::client_api::messages::*;
+use crate::crypto::aes256_gcm;
+use crate::resources::directory_key_manager;
+use base64;
 use rand::*;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
-use base64;
-use crate::crypto::aes256_gcm;
-use crate::resources::directory_key_manager;
-use crate::client_api::annotation;
-use crate::client_api::messages::*;
 
 use keyProvider::key_provider_service_server::KeyProviderService;
 use keyProvider::{KeyProviderKeyWrapProtocolInput, KeyProviderKeyWrapProtocolOutput};
@@ -17,8 +17,8 @@ pub mod keyProvider {
 #[derive(Debug, Default)]
 pub struct keyProviderService {}
 
-const IV_LEN : usize = 12;
-const KEY_LEN : usize = 32;
+const IV_LEN: usize = 12;
+const KEY_LEN: usize = 32;
 
 #[tonic::async_trait]
 impl KeyProviderService for keyProviderService {
@@ -48,7 +48,8 @@ impl KeyProviderService for keyProviderService {
         let optsdata = wrap_command.keywrapparams.optsdata.unwrap();
         if !ec.Parameters.is_empty() {
             for key in ec.Parameters.keys() {
-                kid = String::from_utf8(base64::decode(ec.Parameters[key][0].to_string()).unwrap()).unwrap();
+                kid = String::from_utf8(base64::decode(ec.Parameters[key][0].to_string()).unwrap())
+                    .unwrap();
                 break;
             }
         } else {
@@ -63,11 +64,12 @@ impl KeyProviderService for keyProviderService {
         let encrypted_data = directory_key_manager::get_key(&kid)
             .and_then(|key| {
                 info!("key: {:?}", key);
-                let encrypted_data = aes256_gcm::encrypt(&base64::decode(optsdata).unwrap(), key.as_slice(), &iv)
-                    .unwrap_or_else(|e| {
-                        error!("encrypt data failed with error:{:?}", e);
-                        vec![0]
-                    });
+                let encrypted_data =
+                    aes256_gcm::encrypt(&base64::decode(optsdata).unwrap(), key.as_slice(), &iv)
+                        .unwrap_or_else(|e| {
+                            error!("encrypt data failed with error:{:?}", e);
+                            vec![0]
+                        });
                 Ok(encrypted_data)
             })
             .unwrap_or_else(|_| {
@@ -117,17 +119,14 @@ impl KeyProviderService for keyProviderService {
                         .map_err(|_| "base64 decode annotation failed".to_string())
                 })
                 .and_then(|annotation| {
-                    String::from_utf8(annotation)
-                        .map_err(|_| "utf8 error".to_string())
+                    String::from_utf8(annotation).map_err(|_| "utf8 error".to_string())
                 });
-        
+
         let annotation = match annotation {
             Ok(annotation) => annotation,
             Err(e) => {
                 let reply = KeyProviderKeyWrapProtocolOutput {
-                    key_provider_key_wrap_protocol_output: e
-                        .as_bytes()
-                        .to_vec(),
+                    key_provider_key_wrap_protocol_output: e.as_bytes().to_vec(),
                 };
                 return Ok(Response::new(reply));
             }
@@ -137,8 +136,8 @@ impl KeyProviderService for keyProviderService {
 
         let decrypted_data = serde_json::from_str::<annotation::AnnotationPacket>(&annotation[..])
             .and_then(|annotation| {
-                let decrypted_data =
-                    directory_key_manager::get_key(&annotation.kid).and_then(|key| {
+                let decrypted_data = directory_key_manager::get_key(&annotation.kid)
+                    .and_then(|key| {
                         let a = aes256_gcm::decrypt(
                             &annotation.wrapped_data[..],
                             key.as_slice(),
@@ -159,7 +158,7 @@ impl KeyProviderService for keyProviderService {
             keyunwrapresults: KeyUnwrapResults {
                 optsdata: decrypted_data,
             },
-        };        
+        };
 
         let reply = KeyProviderKeyWrapProtocolOutput {
             key_provider_key_wrap_protocol_output: serde_json::to_string(&key_unwrap_output)

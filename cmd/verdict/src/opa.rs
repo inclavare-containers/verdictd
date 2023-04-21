@@ -3,10 +3,10 @@ use std::fs;
 use std::io::prelude::*;
 
 use crate::client_api::opa_service_client::OpaServiceClient;
-use crate::client_api::{SetOpaPolicyRequest, SetOpaPolicyResponse};
 use crate::client_api::{ExportOpaPolicyRequest, ExportOpaPolicyResponse};
-use crate::client_api::{SetOpaReferenceRequest, SetOpaReferenceResponse};
 use crate::client_api::{ExportOpaReferenceRequest, ExportOpaReferenceResponse};
+use crate::client_api::{SetOpaPolicyRequest, SetOpaPolicyResponse};
+use crate::client_api::{SetOpaReferenceRequest, SetOpaReferenceResponse};
 use crate::client_api::{TestOpaRequest, TestOpaResponse};
 
 pub async fn set_policy_cmd(vals: Vec<&str>, addr: &str) {
@@ -23,14 +23,10 @@ pub async fn set_policy_cmd(vals: Vec<&str>, addr: &str) {
     };
 
     let mut client = OpaServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
-
-    let response: SetOpaPolicyResponse = client
-        .set_opa_policy(request)
         .await
-        .unwrap()
-        .into_inner();
+        .unwrap();
+
+    let response: SetOpaPolicyResponse = client.set_opa_policy(request).await.unwrap().into_inner();
     info!(
         "set_opa_policy status is: {:?}",
         String::from_utf8(response.status).unwrap()
@@ -43,8 +39,8 @@ pub async fn export_policy_cmd(name: &str, path: String, addr: &str) {
     };
 
     let mut client = OpaServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     let response: ExportOpaPolicyResponse = client
         .export_opa_policy(request)
@@ -73,8 +69,7 @@ pub async fn set_reference_cmd(vals: Vec<&str>, addr: &str) {
         .read_to_string(&mut data)
         .expect(&format!("Failed to read from the file named {}.", vals[1]));
 
-    let _json: Value =
-        serde_json::from_str(&data).expect("File content is not in json format.");
+    let _json: Value = serde_json::from_str(&data).expect("File content is not in json format.");
 
     let request = SetOpaReferenceRequest {
         name: vals[0].as_bytes().to_vec(),
@@ -82,8 +77,8 @@ pub async fn set_reference_cmd(vals: Vec<&str>, addr: &str) {
     };
 
     let mut client = OpaServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     let response: SetOpaReferenceResponse = client
         .set_opa_reference(request)
@@ -102,8 +97,8 @@ pub async fn export_reference_cmd(name: &str, path: String, addr: &str) {
     };
 
     let mut client = OpaServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
+        .await
+        .unwrap();
 
     let response: ExportOpaReferenceResponse = client
         .export_opa_reference(request)
@@ -125,16 +120,18 @@ pub async fn export_reference_cmd(name: &str, path: String, addr: &str) {
 }
 
 pub async fn test_remote_cmd(vals: Vec<&str>, addr: &str) {
-    info!("OPA Test remote: policy name: {}, reference name:{}, input file:{}", vals[0], vals[1], vals[2]);
+    info!(
+        "OPA Test remote: policy name: {}, reference name:{}, input file:{}",
+        vals[0], vals[1], vals[2]
+    );
 
     let mut input = String::new();
     fs::File::open(vals[2])
         .expect(&format!("Failed to open the file named {}.", vals[2]))
         .read_to_string(&mut input)
         .expect(&format!("Failed to read from the file named {}.", vals[2]));
-    let _json: Value =
-        serde_json::from_str(&input).expect("File content is not in json format.");
-    
+    let _json: Value = serde_json::from_str(&input).expect("File content is not in json format.");
+
     let policycontent = "".to_string();
     let referencecontent = "".to_string();
 
@@ -149,14 +146,10 @@ pub async fn test_remote_cmd(vals: Vec<&str>, addr: &str) {
     };
 
     let mut client = OpaServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
-
-    let response: TestOpaResponse = client
-        .test_opa(request)
         .await
-        .unwrap()
-        .into_inner();
+        .unwrap();
+
+    let response: TestOpaResponse = client.test_opa(request).await.unwrap().into_inner();
     info!(
         "TestOpa status is: {:?}",
         String::from_utf8(response.status).unwrap()
@@ -164,7 +157,10 @@ pub async fn test_remote_cmd(vals: Vec<&str>, addr: &str) {
 }
 
 pub async fn test_local_cmd(vals: Vec<&str>, addr: &str) {
-    info!("OPA Test local: policy file: {}, reference file:{}, input file:{}", vals[0], vals[1], vals[2]);
+    info!(
+        "OPA Test local: policy file: {}, reference file:{}, input file:{}",
+        vals[0], vals[1], vals[2]
+    );
 
     let mut policycontent = String::new();
     fs::File::open(vals[0])
@@ -183,8 +179,7 @@ pub async fn test_local_cmd(vals: Vec<&str>, addr: &str) {
         .expect(&format!("Failed to open the file named {}.", vals[2]))
         .read_to_string(&mut input)
         .expect(&format!("Failed to read from the file named {}.", vals[2]));
-    let _json: Value =
-        serde_json::from_str(&input).expect("File content is not in json format.");
+    let _json: Value = serde_json::from_str(&input).expect("File content is not in json format.");
 
     let request = TestOpaRequest {
         policyname: vals[0].as_bytes().to_vec(),
@@ -197,14 +192,10 @@ pub async fn test_local_cmd(vals: Vec<&str>, addr: &str) {
     };
 
     let mut client = OpaServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
-
-    let response: TestOpaResponse = client
-        .test_opa(request)
         .await
-        .unwrap()
-        .into_inner();
+        .unwrap();
+
+    let response: TestOpaResponse = client.test_opa(request).await.unwrap().into_inner();
     info!(
         "Opa execution result: {:?}",
         String::from_utf8(response.status).unwrap()
@@ -212,7 +203,10 @@ pub async fn test_local_cmd(vals: Vec<&str>, addr: &str) {
 }
 
 pub async fn test_localpolicy_cmd(vals: Vec<&str>, addr: &str) {
-    info!("OPA Test local policy: policy file: {}, reference name:{}, input file:{}", vals[0], vals[1], vals[2]);
+    info!(
+        "OPA Test local policy: policy file: {}, reference name:{}, input file:{}",
+        vals[0], vals[1], vals[2]
+    );
 
     let mut policycontent = String::new();
     fs::File::open(vals[0])
@@ -225,8 +219,7 @@ pub async fn test_localpolicy_cmd(vals: Vec<&str>, addr: &str) {
         .expect(&format!("Failed to open the file named {}.", vals[2]))
         .read_to_string(&mut input)
         .expect(&format!("Failed to read from the file named {}.", vals[2]));
-    let _json: Value =
-        serde_json::from_str(&input).expect("File content is not in json format.");
+    let _json: Value = serde_json::from_str(&input).expect("File content is not in json format.");
     let referencecontent = "".to_string();
 
     let request = TestOpaRequest {
@@ -240,14 +233,10 @@ pub async fn test_localpolicy_cmd(vals: Vec<&str>, addr: &str) {
     };
 
     let mut client = OpaServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
-
-    let response: TestOpaResponse = client
-        .test_opa(request)
         .await
-        .unwrap()
-        .into_inner();
+        .unwrap();
+
+    let response: TestOpaResponse = client.test_opa(request).await.unwrap().into_inner();
     info!(
         "TestOpa status is: {:?}",
         String::from_utf8(response.status).unwrap()
@@ -255,7 +244,10 @@ pub async fn test_localpolicy_cmd(vals: Vec<&str>, addr: &str) {
 }
 
 pub async fn test_localreference_cmd(vals: Vec<&str>, addr: &str) {
-    info!("OPA Test local reference: policy name: {}, reference file:{}, input file:{}", vals[0], vals[1], vals[2]);
+    info!(
+        "OPA Test local reference: policy name: {}, reference file:{}, input file:{}",
+        vals[0], vals[1], vals[2]
+    );
 
     let mut referencecontent = String::new();
     fs::File::open(vals[1])
@@ -268,8 +260,7 @@ pub async fn test_localreference_cmd(vals: Vec<&str>, addr: &str) {
         .expect(&format!("Failed to open the file named {}.", vals[2]))
         .read_to_string(&mut input)
         .expect(&format!("Failed to read from the file named {}.", vals[2]));
-    let _json: Value =
-        serde_json::from_str(&input).expect("File content is not in json format.");
+    let _json: Value = serde_json::from_str(&input).expect("File content is not in json format.");
 
     let policycontent = "".to_string();
 
@@ -284,14 +275,10 @@ pub async fn test_localreference_cmd(vals: Vec<&str>, addr: &str) {
     };
 
     let mut client = OpaServiceClient::connect(format!("http://{}", addr))
-    .await
-    .unwrap();
-
-    let response: TestOpaResponse = client
-        .test_opa(request)
         .await
-        .unwrap()
-        .into_inner();
+        .unwrap();
+
+    let response: TestOpaResponse = client.test_opa(request).await.unwrap().into_inner();
     info!(
         "TestOpa status is: {:?}",
         String::from_utf8(response.status).unwrap()

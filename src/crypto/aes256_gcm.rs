@@ -1,11 +1,7 @@
 use aes_gcm::aead::{Aead, NewAead};
 use aes_gcm::{Aes256Gcm, Key, Nonce};
 
-pub fn encrypt(
-    data: &[u8], 
-    key: &[u8], 
-    iv: &[u8]
-) -> Result<Vec<u8>, String> {
+pub fn encrypt(data: &[u8], key: &[u8], iv: &[u8]) -> Result<Vec<u8>, String> {
     let encrypting_key = Key::from_slice(key);
     let cipher = Aes256Gcm::new(encrypting_key);
     let nonce = Nonce::from_slice(iv);
@@ -16,11 +12,7 @@ pub fn encrypt(
     encrypted_data
 }
 
-pub fn decrypt(
-    encrypted_data: &[u8], 
-    key: &[u8], 
-    iv: &[u8]
-) -> Result<Vec<u8>, String> {
+pub fn decrypt(encrypted_data: &[u8], key: &[u8], iv: &[u8]) -> Result<Vec<u8>, String> {
     let decrypting_key = Key::from_slice(key);
     let cipher = Aes256Gcm::new(decrypting_key);
     let nonce = Nonce::from_slice(iv);

@@ -1,8 +1,8 @@
+use crate::resources::file;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::fs;
 use std::path::Path;
-use crate::resources::file;
 
 lazy_static! {
     // Global file lock
@@ -47,8 +47,7 @@ pub fn size_base64(name: &str) -> Result<usize, String> {
 
 pub fn default() -> Result<(), String> {
     if !Path::new(&IMAGE_PATH.to_string()).exists() {
-        fs::create_dir_all(IMAGE_PATH)
-            .map_err(|_| format!("create {:?} failed", IMAGE_PATH))?;
+        fs::create_dir_all(IMAGE_PATH).map_err(|_| format!("create {:?} failed", IMAGE_PATH))?;
     }
 
     if !Path::new(&POLICY.to_string()).exists() {
@@ -60,18 +59,17 @@ pub fn default() -> Result<(), String> {
         }
     ],
 }"#;
-        
+
         file::write(&String::from(POLICY), &policy.to_string())
             .map_err(|e| format!("Set {} failed with error {:?}", POLICY, e))?;
     }
 
     if !Path::new(&SIGSTORE.to_string()).exists() {
         info!("{} isn't exist", SIGSTORE);
-        let sigstore =
-"default:
+        let sigstore = "default:
     sigstore: file:///var/lib/containers/sigstore
 ";
-        
+
         file::write(&String::from(SIGSTORE), sigstore)
             .map_err(|e| format!("Set {} failed with error {:?}", SIGSTORE, e))?;
     }

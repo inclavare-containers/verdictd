@@ -4,15 +4,15 @@
 #![allow(dead_code)]
 
 use clap::{App, Arg};
-use shadow_rs::shadow;
 use resources::*;
+use shadow_rs::shadow;
 
 mod attestation_agent;
 mod client_api;
 mod crypto;
+mod policy_engine;
 mod rats_tls;
 mod resources;
-mod policy_engine;
 
 #[macro_use]
 extern crate log;
@@ -21,7 +21,9 @@ shadow!(build);
 
 #[tokio::main]
 async fn main() {
-    env_logger::builder().filter(None, log::LevelFilter::Info).init();
+    env_logger::builder()
+        .filter(None, log::LevelFilter::Info)
+        .init();
 
     let version = format!(
         "v{}\ncommit: {}\nbuildtime: {}",
@@ -107,7 +109,7 @@ async fn main() {
                 .value_name("client_api")
                 .help("Specify the client API's listen addr")
                 .takes_value(true),
-        )        
+        )
         .get_matches();
 
     let sockaddr = match matches.is_present("listen") {
@@ -139,8 +141,8 @@ async fn main() {
         );
     });
 
-     // Launch client API gRPC server
-     let client_api = match matches.is_present("client_api") {
+    // Launch client API gRPC server
+    let client_api = match matches.is_present("client_api") {
         true => matches.value_of("client_api").unwrap().to_string(),
         false => "[::1]:60000".to_string(),
     };

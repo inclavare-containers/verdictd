@@ -4,16 +4,18 @@ pub mod client_api {
     tonic::include_proto!("clientapi");
 }
 
-mod opa;
 mod gpg;
 mod image;
+mod opa;
 
 #[macro_use]
 extern crate log;
 
 #[tokio::main]
 async fn main() {
-    env_logger::builder().filter(None, log::LevelFilter::Info).init();
+    env_logger::builder()
+        .filter(None, log::LevelFilter::Info)
+        .init();
 
     let matches = App::new("verdict")
         .version("0.1")
@@ -159,7 +161,11 @@ async fn main() {
 
     // set_opa_policy
     if matches.is_present("set_opa_policy") {
-        opa::set_policy_cmd(matches.values_of("set_opa_policy").unwrap().collect(), &client_api).await;
+        opa::set_policy_cmd(
+            matches.values_of("set_opa_policy").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     // export_opa_policy
@@ -172,12 +178,21 @@ async fn main() {
         if !path.ends_with("/") {
             path = format!("{}/", path);
         }
-        opa::export_policy_cmd(matches.value_of("export_opa_policy").unwrap(), path, &client_api).await;
+        opa::export_policy_cmd(
+            matches.value_of("export_opa_policy").unwrap(),
+            path,
+            &client_api,
+        )
+        .await;
     }
 
     // set data
     if matches.is_present("set_opa_reference") {
-        opa::set_reference_cmd(matches.values_of("set_opa_reference").unwrap().collect(), &client_api).await;
+        opa::set_reference_cmd(
+            matches.values_of("set_opa_reference").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     // export Data
@@ -190,23 +205,50 @@ async fn main() {
         if !path.ends_with("/") {
             path = format!("{}/", path);
         }
-        opa::export_reference_cmd(matches.value_of("export_opa_reference").unwrap(), path, &client_api).await;
+        opa::export_reference_cmd(
+            matches.value_of("export_opa_reference").unwrap(),
+            path,
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("test_opa_remote") {
-        opa::test_remote_cmd(matches.values_of("test_opa_remote").unwrap().collect(), &client_api).await;
+        opa::test_remote_cmd(
+            matches.values_of("test_opa_remote").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("test_opa_local") {
-        opa::test_local_cmd(matches.values_of("test_opa_local").unwrap().collect(), &client_api).await;
+        opa::test_local_cmd(
+            matches.values_of("test_opa_local").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("test_opa_local_policy") {
-        opa::test_localpolicy_cmd(matches.values_of("test_opa_local_policy").unwrap().collect(), &client_api).await;
+        opa::test_localpolicy_cmd(
+            matches
+                .values_of("test_opa_local_policy")
+                .unwrap()
+                .collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("test_opa_local_reference") {
-        opa::test_localreference_cmd(matches.values_of("test_opa_local_reference").unwrap().collect(), &client_api).await;
+        opa::test_localreference_cmd(
+            matches
+                .values_of("test_opa_local_reference")
+                .unwrap()
+                .collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("list_gpg_keys") {
@@ -214,7 +256,11 @@ async fn main() {
     }
 
     if matches.is_present("import_gpg_key") {
-        gpg::import_gpg_key_cmd(matches.values_of("import_gpg_key").unwrap().collect(), &client_api).await;
+        gpg::import_gpg_key_cmd(
+            matches.values_of("import_gpg_key").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("export_gpg_keyring") {
@@ -222,7 +268,11 @@ async fn main() {
     }
 
     if matches.is_present("delete_gpg_key") {
-        gpg::delete_gpg_key_cmd(matches.values_of("delete_gpg_key").unwrap().collect(), &client_api).await;
+        gpg::delete_gpg_key_cmd(
+            matches.values_of("delete_gpg_key").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("export_image_sigstore") {
@@ -238,7 +288,11 @@ async fn main() {
     }
 
     if matches.is_present("set_image_sigstore") {
-        image::set_image_sigstore_cmd(matches.values_of("set_image_sigstore").unwrap().collect(), &client_api).await;
+        image::set_image_sigstore_cmd(
+            matches.values_of("set_image_sigstore").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 
     if matches.is_present("export_image_policy") {
@@ -254,6 +308,10 @@ async fn main() {
     }
 
     if matches.is_present("set_image_policy") {
-        image::set_image_policy_cmd(matches.values_of("set_image_policy").unwrap().collect(), &client_api).await;
+        image::set_image_policy_cmd(
+            matches.values_of("set_image_policy").unwrap().collect(),
+            &client_api,
+        )
+        .await;
     }
 }
