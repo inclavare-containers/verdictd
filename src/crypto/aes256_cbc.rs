@@ -68,3 +68,21 @@ pub fn decrypt(
 
     Ok(final_result)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_encrypt_and_decrypt() {
+        let key = b"01234567890123456789012345678901";
+        let iv = b"012345678901";
+        let data = b"test_data";
+
+        let encrypted_data = encrypt(data, key, iv);
+        assert!(encrypted_data.is_ok(), "encrypt() failed");
+
+        let decrypted_data = decrypt(&encrypted_data.unwrap(), key, iv);
+        assert!(decrypted_data.is_ok(), "decrypt() failed");
+    }
+}
